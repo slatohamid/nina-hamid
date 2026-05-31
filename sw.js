@@ -1,8 +1,8 @@
-const CACHE = 'nina-hamid-v5';
+const CACHE = 'nina-hamid-v6';
 const ASSETS = [
   './',
   './index.html',
-  './app.js?v=7',
+  './app.js?v=8',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',

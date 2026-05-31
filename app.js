@@ -1,7 +1,7 @@
 const { useState, useEffect, useRef } = React;
 
 const TODAY = "2026-05-31";
-const APP_VERSION = "v7";
+const APP_VERSION = "v8";
 const GOAL1 = { label: "🇫🇷 Paris 20km", date: "2026-10-11", days: Math.floor((new Date("2026-10-11") - new Date(TODAY)) / 86400000) };
 const GOAL2 = { label: "🇧🇪 Brussels 20km", date: "2027-05-30", days: Math.floor((new Date("2027-05-30") - new Date(TODAY)) / 86400000) };
 
@@ -58,6 +58,13 @@ const scheduleData = {
     { day: "Subota", time: "07:00", type: "Dugo trčanje (s Slatom)", details: "Lagano, Ninin tempo. Postepeno povećavati udaljenost.", icon: "👫", duration: 60, goal: "NAJVAŽNIJI trening sedmice — gradi izdržljivost za 20 km.", intensity: "Zona 2 · RPE 5-6" },
     { day: "Nedjelja", time: null, type: "Odmor + Mobilnost", details: "Istezanje, foam rolling, šetnja.", icon: "😴", duration: null, goal: "Oporavak i mobilnost — tijelo jača dok se odmara.", intensity: "Odmor" }
   ]}
+};
+
+// Koji blokovi snage (indeksi u strengthData[pid].blocks) pripadaju kojem danu
+// (dayIndex: 0=Pon … 6=Ned). Dani bez unosa nemaju snagu (trčanje/odmor).
+const DAY_BLOCKS = {
+  slato: { 0: [0], 1: [0, 1], 2: [0], 3: [0, 2], 4: [0] },
+  nina:  { 1: [0], 3: [1], 4: [2] }
 };
 
 const strengthData = {
@@ -1196,6 +1203,30 @@ function App() {
                     <div style={{ fontSize:12, fontWeight:700, color:"#94a3b8", marginBottom:3 }}>📋 Šta raditi</div>
                     <div style={{ fontSize:13, color:"#cbd5e1", lineHeight:1.5 }}>{d.details}</div>
                   </div>
+                  {(DAY_BLOCKS[pid][openDay]||[]).map(bi=>{
+                    const block=strengthData[pid].blocks[bi];
+                    if(!block) return null;
+                    return (
+                      <div key={bi} style={{ background:"#0f172a", borderRadius:8, padding:10, marginTop:8 }}>
+                        <div style={{ fontSize:12, fontWeight:700, color:block.color, marginBottom:6 }}>💪 {block.name}</div>
+                        {block.exercises.map(ex=>(
+                          <div key={ex.name} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:8, padding:"6px 0", borderBottom:"1px solid #1e293b" }}>
+                            <div style={{ minWidth:0 }}>
+                              <div style={{ fontSize:13, fontWeight:600 }}>{ex.name}</div>
+                              <div style={{ fontSize:11, color:"#64748b" }}>{ex.sets} · 💡 {ex.tip}</div>
+                            </div>
+                            <a href={`https://www.youtube.com/results?search_query=${ex.yt}`} target="_blank" rel="noreferrer" style={{ background:"#ef4444", borderRadius:6, padding:"3px 8px", fontSize:11, color:"#fff", textDecoration:"none", fontWeight:700, flexShrink:0 }}>▶ YT</a>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                  {d.type.toLowerCase().includes("rehab") && pid==="slato" && (
+                    <button onClick={()=>{setTab("Rehab"); setOpenDay(null);}} style={{ width:"100%", padding:10, background:"#7c3aed", border:"none", borderRadius:8, color:"#fff", fontWeight:700, fontSize:13, cursor:"pointer", marginTop:8 }}>🦵 Otvori Rehab protokol</button>
+                  )}
+                  {(DAY_BLOCKS[pid][openDay]||[]).length>0 && (
+                    <button onClick={()=>{setTab("Snaga"); setOpenDay(null);}} style={{ width:"100%", padding:10, background:"#334155", border:"none", borderRadius:8, color:"#cbd5e1", fontWeight:700, fontSize:13, cursor:"pointer", marginTop:8 }}>💪 Otvori cijeli Snaga tab</button>
+                  )}
                 </div>
               );
             })()}
