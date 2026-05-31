@@ -1,2 +1,8 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Binarni fajlovi — nikad ne diraj (line-ending normalizacija bi ih pokvarila)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary

@@ -1,10 +1,11 @@
-const CACHE = 'nina-hamid-v2';
+const CACHE = 'nina-hamid-v3';
 const ASSETS = [
   './',
   './index.html',
   './app.js',
   './manifest.json',
-  './icon.png',
+  './icon-192.png',
+  './icon-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js'
@@ -12,7 +13,13 @@ const ASSETS = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(ASSETS))
+    caches.open(CACHE).then(c =>
+      // Keširaj svaki fajl pojedinačno — ako neki fali (404), preskoči ga
+      // umjesto da cijela instalacija padne (to je ranije blokiralo update).
+      Promise.all(ASSETS.map(url =>
+        c.add(url).catch(err => console.log('SW skip:', url, err))
+      ))
+    )
   );
   self.skipWaiting();
 });
