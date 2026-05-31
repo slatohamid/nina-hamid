@@ -375,12 +375,63 @@ function AchillesTab({ showToast }) {
   );
 }
 
+// ─── SEDMIČNA LISTA NAMIRNICA (Slato + Nina, ~7 dana) ─────────
+// bs = bosanski naziv, fr = francuski (za police u Belgiji), qty = sedmična
+// količina za oboje, cat = kategorija (mora biti jedna iz `cats` liste).
+const WEEKLY_GROCERIES = [
+  // 🥩 Proteini
+  { bs: "Pileća prsa", fr: "Blanc de poulet", qty: "2 kg", cat: "🥩 Proteini" },
+  { bs: "Jaja", fr: "Œufs", qty: "30 kom", cat: "🥩 Proteini" },
+  { bs: "Losos (file)", fr: "Saumon (filet)", qty: "800 g", cat: "🥩 Proteini" },
+  { bs: "Tuna u konzervi", fr: "Thon en boîte", qty: "4 konzerve", cat: "🥩 Proteini" },
+  { bs: "Mljevena govedina", fr: "Bœuf haché", qty: "800 g", cat: "🥩 Proteini" },
+  { bs: "Sardine / skuša", fr: "Sardines / Maquereau", qty: "3 konzerve", cat: "🥩 Proteini" },
+  { bs: "Tofu", fr: "Tofu", qty: "400 g", cat: "🥩 Proteini" },
+  // 🥛 Mliječni proizvodi
+  { bs: "Grčki jogurt", fr: "Yaourt grec", qty: "1.5 kg", cat: "🥛 Mliječni proizvodi" },
+  { bs: "Skuta / svježi sir", fr: "Fromage blanc / Skyr", qty: "1 kg", cat: "🥛 Mliječni proizvodi" },
+  { bs: "Kefir", fr: "Kéfir", qty: "1 L", cat: "🥛 Mliječni proizvodi" },
+  { bs: "Feta", fr: "Feta", qty: "200 g", cat: "🥛 Mliječni proizvodi" },
+  // 🌾 Žitarice & Suhe namirnice
+  { bs: "Zobene pahuljice", fr: "Flocons d'avoine", qty: "1 kg", cat: "🌾 Žitarice & Suhe namirnice" },
+  { bs: "Kvinoja", fr: "Quinoa", qty: "500 g", cat: "🌾 Žitarice & Suhe namirnice" },
+  { bs: "Riža (basmati/integralna)", fr: "Riz (basmati/complet)", qty: "1 kg", cat: "🌾 Žitarice & Suhe namirnice" },
+  { bs: "Integralni hljeb", fr: "Pain complet", qty: "1 veknu", cat: "🌾 Žitarice & Suhe namirnice" },
+  { bs: "Chia sjemenke", fr: "Graines de chia", qty: "250 g", cat: "🌾 Žitarice & Suhe namirnice" },
+  { bs: "Leća", fr: "Lentilles", qty: "500 g", cat: "🌾 Žitarice & Suhe namirnice" },
+  { bs: "Batat", fr: "Patate douce", qty: "1 kg", cat: "🌾 Žitarice & Suhe namirnice" },
+  // 🥦 Povrće & Voće
+  { bs: "Borovnice", fr: "Myrtilles", qty: "500 g", cat: "🥦 Povrće & Voće" },
+  { bs: "Banane", fr: "Bananes", qty: "1 kg", cat: "🥦 Povrće & Voće" },
+  { bs: "Jabuke", fr: "Pommes", qty: "1 kg", cat: "🥦 Povrće & Voće" },
+  { bs: "Brokula", fr: "Brocoli", qty: "1 kg", cat: "🥦 Povrće & Voće" },
+  { bs: "Špinat", fr: "Épinards", qty: "400 g", cat: "🥦 Povrće & Voće" },
+  { bs: "Avokado", fr: "Avocat", qty: "4 kom", cat: "🥦 Povrće & Voće" },
+  { bs: "Paradajz", fr: "Tomates", qty: "600 g", cat: "🥦 Povrće & Voće" },
+  { bs: "Tikvica", fr: "Courgette", qty: "3 kom", cat: "🥦 Povrće & Voće" },
+  { bs: "Paprika", fr: "Poivron", qty: "4 kom", cat: "🥦 Povrće & Voće" },
+  { bs: "Zelena salata", fr: "Salade verte", qty: "2 kom", cat: "🥦 Povrće & Voće" },
+  { bs: "Đumbir", fr: "Gingembre", qty: "1 korijen", cat: "🥦 Povrće & Voće" },
+  { bs: "Bijeli luk", fr: "Ail", qty: "1 glavica", cat: "🥦 Povrće & Voće" },
+  { bs: "Limun", fr: "Citron", qty: "3 kom", cat: "🥦 Povrće & Voće" },
+  // 🧴 Ostalo
+  { bs: "Maslinovo ulje", fr: "Huile d'olive", qty: "1 boca", cat: "🧴 Ostalo" },
+  { bs: "Bademi", fr: "Amandes", qty: "250 g", cat: "🧴 Ostalo" },
+  { bs: "Orasi", fr: "Noix", qty: "250 g", cat: "🧴 Ostalo" },
+  { bs: "Bademov puter", fr: "Beurre d'amande", qty: "1 teglica", cat: "🧴 Ostalo" },
+  { bs: "Med", fr: "Miel", qty: "1 teglica", cat: "🧴 Ostalo" },
+  { bs: "Bademovo mlijeko", fr: "Lait d'amande", qty: "2 L", cat: "🧴 Ostalo" },
+  { bs: "Kurkuma + cimet", fr: "Curcuma + cannelle", qty: "1+1", cat: "🧴 Ostalo" },
+  { bs: "Hummus", fr: "Houmous", qty: "1 pakovanje", cat: "🧴 Ostalo" },
+  // 🫙 Suplementi (po potrebi)
+  { bs: "Protein prah", fr: "Protéine en poudre", qty: "po potrebi", cat: "🫙 Suplementi" },
+  { bs: "Kreatin", fr: "Créatine", qty: "po potrebi", cat: "🫙 Suplementi" }
+];
+
 // ─── SHOPPING LIST ────────────────────────────────────────────
-function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShoppingChecked, showToast, pid }) {
+function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShoppingChecked, showToast }) {
   const [newItem, setNewItem] = useState("");
   const [newCat, setNewCat] = useState("🥩 Proteini");
-  const [selectedOpt, setSelectedOpt] = useState(0);
-  const person = PROFILES[pid] || PROFILES.slato;
 
   const cats = ["🥩 Proteini", "🥦 Povrće & Voće", "🌾 Žitarice & Suhe namirnice", "🥛 Mliječni proizvodi", "🫙 Suplementi", "🧴 Ostalo"];
   const items = shoppingList || [];
@@ -407,35 +458,16 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
     setShoppingList([]); setShoppingChecked([]); showToast("🗑️ Lista očišćena!");
   }
 
-  // Razvrstaj namirnicu u kategoriju po ključnim riječima.
-  function catOf(name) {
-    const s = name.toLowerCase();
-    const has = (...ks) => ks.some(k => s.includes(k));
-    if (has("ulje", "puter", "med ", "hummus", "soja sos")) return "🧴 Ostalo";
-    if (has("protein prah", "protein shake", "whey", "casein", "kreatin", "omega", "vitamin", "kolagen", "magnezij", "probiot", "suplement")) return "🫙 Suplementi";
-    if (has("jogurt", "skut", "kefir", "feta", "sir")) return "🥛 Mliječni proizvodi";
-    if (has("pilet", "pile", "jaj", "bjelanj", "losos", "tuna", "govedin", "sardin", "skuš", "skus", "bakalar", "tofu", "šunk", "sunk")) return "🥩 Proteini";
-    if (has("zob", "pahuljic", "kvinoj", "quinoa", "riž", "riz", "hljeb", "hleb", "oats", "chia", "leć", "lec", "keks", "rižin", "rizin")) return "🌾 Žitarice & Suhe namirnice";
-    if (has("borovnic", "jagod", "banan", "jabuk", "kruš", "krus", "brokul", "špinat", "spinat", "spanać", "spanac", "avokado", "paradajz", "salat", "tikvic", "paprik", "krastav", "celer", "mandarin", "narandž", "naranc", "đumbir", "dumbir", "kurkum", "luk", "maslin", "povrć", "povrc", "batat", "limun", "voće", "voce")) return "🥦 Povrće & Voće";
-    return "🧴 Ostalo";
-  }
-
-  // Generiše listu LOKALNO iz jelovnika AKTIVNE osobe (bez interneta).
-  function generateLocal() {
-    const opt = mealOptions[pid].options[selectedOpt] || mealOptions[pid].options[0];
-    const seen = {}, out = [];
-    (opt.meals || []).forEach(m => {
-      String(m.d).split("+").forEach(raw => {
-        const name = raw.split(":").pop().trim();
-        if (!name) return;
-        const key = name.toLowerCase().replace(/\d+\s*(g|ml|kom)?/g, "").replace(/\s+/g, " ").trim();
-        if (!key || seen[key]) return;
-        seen[key] = true;
-        out.push({ id: Date.now() + Math.random(), name: name.charAt(0).toUpperCase() + name.slice(1), cat: catOf(name), manual: false });
-      });
-    });
+  // Generiše fiksnu sedmičnu listu za domaćinstvo (Slato + Nina) s BS/FR nazivima.
+  function generateWeekly() {
+    const out = WEEKLY_GROCERIES.map((g, i) => ({
+      id: Date.now() + i,
+      name: `${g.bs} / ${g.fr} — ${g.qty}`,
+      cat: g.cat,
+      manual: false
+    }));
     setShoppingList(out); setShoppingChecked([]);
-    showToast(out.length ? `✅ Lista: ${out.length} namirnica (${person.name})` : "Nema sastojaka");
+    showToast(`✅ Sedmična lista: ${out.length} namirnica`);
   }
 
   const unchecked = items.filter(x => !checked.includes(x.id));
@@ -448,16 +480,13 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
         {items.length > 0 ? `${unchecked.length} preostalo · ${checkedItems.length} kupljeno` : "Lista je prazna"}
       </div>
       <div style={{ background: bgC, borderRadius: 12, padding: 14, marginBottom: 12, borderTop: "3px solid #7c3aed" }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: "#7c3aed", marginBottom: 10 }}>🍽️ Generiši iz jelovnika</div>
-        <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>{person.emoji} {person.name} — jelovnik</div>
-          <select value={selectedOpt} onChange={e => setSelectedOpt(+e.target.value)}
-            style={{ width: "100%", padding: "8px 10px", background: bg, border: `1px solid ${bdr}`, borderRadius: 8, color: "#f1f5f9", fontSize: 13 }}>
-            {mealOptions[pid].options.map((o, i) => <option key={i} value={i}>{o.num} — {o.name}</option>)}
-          </select>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#7c3aed", marginBottom: 6 }}>🍽️ Sedmična lista (Slato + Nina)</div>
+        <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 10, lineHeight: 1.5 }}>
+          Glavne namirnice za ~7 dana, s francuskim nazivima za police u Belgiji.
+          Količine su za oboje — prilagodi po potrebi.
         </div>
-        <button onClick={generateLocal} style={{ width: "100%", padding: 13, background: "#7c3aed", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
-          ✨ Generiši listu iz jelovnika ({person.name})
+        <button onClick={generateWeekly} style={{ width: "100%", padding: 13, background: "#7c3aed", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
+          ✨ Generiši sedmičnu listu
         </button>
         {items.length > 0 && <button onClick={clearAll} style={{ width: "100%", padding: 8, background: "transparent", border: `1px solid ${bdr}`, borderRadius: 8, color: "#94a3b8", fontSize: 13, cursor: "pointer", marginTop: 8 }}>🗑️ Očisti cijelu listu</button>}
       </div>
@@ -1271,7 +1300,6 @@ function App() {
             setShoppingList={list => setData(d => ({ ...d, shoppingList: list }))}
             setShoppingChecked={ch => setData(d => ({ ...d, shoppingChecked: ch }))}
             showToast={showToast}
-            pid={pid}
           />
         )}
 
