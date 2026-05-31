@@ -594,13 +594,28 @@ function PhotoUpload({ data, setData, showToast, pid }) {
         body: JSON.stringify({ path, filename, mimeType: file.type || "image/jpeg", data: base64 })
       })
         .then(() => {
-          setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, date: TODAY }, ...(d.uploads || [])].slice(0, 50) }));
+          setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, filename, date: TODAY }, ...(d.uploads || [])].slice(0, 50) }));
           showToast("✅ Slika poslana na Drive!");
         })
         .catch(() => showToast("❌ Nema veze s internetom"))
         .then(() => setBusy(false));
     };
     reader.readAsDataURL(file);
+  }
+
+  // Briše sliku iz aplikacije I s Google Drive-a (po path + filename).
+  function deleteUpload(u) {
+    if (!window.confirm("Obrisati ovu sliku — i iz aplikacije i s Google Drive-a?")) return;
+    setData(d => ({ ...d, uploads: (d.uploads || []).filter(x => x.id !== u.id) }));
+    if (driveUrl && u.path && u.filename) {
+      fetch(driveUrl, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "delete", path: u.path, filename: u.filename })
+      }).catch(() => {});
+    }
+    showToast("🗑️ Slika obrisana");
   }
 
   const selected = PHOTO_CATEGORIES.find(c => c.id === cat) || PHOTO_CATEGORIES[0];
@@ -663,7 +678,7 @@ function PhotoUpload({ data, setData, showToast, pid }) {
               <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.label || u.path}</div>
               <div style={{ fontSize: 11, color: "#64748b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.path} · {u.date}</div>
             </div>
-            {u.url ? <a href={u.url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "#3b82f6", fontWeight: 700, flexShrink: 0, marginLeft: 10 }}>Otvori ↗</a> : null}
+            <button onClick={() => deleteUpload(u)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: 16, flexShrink: 0, marginLeft: 10 }}>🗑️</button>
           </div>
         ))}
       </div>
@@ -691,7 +706,7 @@ function GuideTab() {
     { ic: "💊", n: "Suplementi", d: "Lista suplemenata s dozom, vremenom uzimanja i razlogom. 🔴 = najvažnije, 🟢 = opcionalno." },
     { ic: "⚖️", n: "Tjelo", d: "Upisuješ težinu (kg). Aplikacija pamti historiju i pokazuje razliku (zeleno = smršao/la, crveno = dobio/la)." },
     { ic: "⌚", n: "Uređaji", d: "Povezivanje sata: uvoz GPX fajla sa Garmina, uputstvo za Fitbit i tvoje HR (puls) zone." },
-    { ic: "🛒", n: "🛒 Lista", d: "Lista za kupovinu — generiši automatski iz jelovnika ili dodaj ručno, pa kvačicom označavaj šta si kupio/la." },
+    { ic: "🛒", n: "🛒 Lista", d: "Lista za kupovinu — klikni 'Generiši sedmičnu listu' (gotov set glavnih namirnica za oboje, bosanski + francuski nazivi) ili dodaj ručno; kvačicom označavaš šta si kupio/la." },
     { ic: "📷", n: "📷 Slike", d: "Slikaj hranu/račune, suplemente, krvnu sliku, recepte ili foto napretka i pošalji ih direktno u pravi folder na Google Drive-u (nalazi i napredak idu u folder odabrane osobe)." },
   ];
 
@@ -773,8 +788,8 @@ function GuideTab() {
           U tabu <b>Snaga</b> svaka vježba ima crveno dugme <b>▶️ YT</b> koje otvara
           video na YouTubeu da vidiš pravilnu izvedbu.
           <br /><br />
-          U tabu <b>🛒 Lista</b> klikni <b>„Generiši listu iz jelovnika"</b> — sastojci iz
-          odabranih obroka se sami poslažu u listu za kupovinu (po kategorijama).
+          U tabu <b>🛒 Lista</b> klikni <b>„Generiši sedmičnu listu"</b> — dobiješ gotov set
+          glavnih namirnica za oboje (bosanski + francuski nazivi, s količinama za sedmicu).
         </div>
       </div>
 

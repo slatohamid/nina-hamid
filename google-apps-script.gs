@@ -25,15 +25,26 @@ function doGet() {
   return json({ ok: true, msg: "Radi! Zalijepi ovaj /exec link u aplikaciju (tab Slike → Postavke)." });
 }
 
-// Prima sliku i sprema je u folder po putanji (npr. "04_Slike/Hrana_Racuni").
+// Prima sliku (upload) ili zahtjev za brisanje (action: "delete").
 function doPost(e) {
   try {
     var body = JSON.parse(e.postData.contents);
+
+    // Brisanje: nađi fajl po imenu u folderu i baci u smeće.
+    if (body.action === "delete") {
+      var dfolder = getFolderByPath(body.path || "04_Slike");
+      var files = dfolder.getFilesByName(body.filename || "");
+      var n = 0;
+      while (files.hasNext()) { files.next().setTrashed(true); n++; }
+      return json({ ok: true, deleted: n });
+    }
+
+    // Upload: spremi sliku u folder po putanji (npr. "04_Slike/Hrana_Racuni").
     var folder = getFolderByPath(body.path || "04_Slike");
     var bytes = Utilities.base64Decode(body.data);
     var blob = Utilities.newBlob(bytes, body.mimeType || "image/jpeg", body.filename || "slika.jpg");
     var file = folder.createFile(blob);
-    return json({ ok: true, url: file.getUrl(), name: file.getName() });
+    return json({ ok: true, id: file.getId(), url: file.getUrl(), name: file.getName() });
   } catch (err) {
     return json({ ok: false, error: String(err) });
   }
