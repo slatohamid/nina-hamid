@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+const { useState, useEffect, useRef } = React;
 
 const TODAY = "2026-05-31";
 const GOAL1 = { label: "🇫🇷 Paris 20km", date: "2026-10-11", days: Math.floor((new Date("2026-10-11") - new Date(TODAY)) / 86400000) };
