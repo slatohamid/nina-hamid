@@ -604,8 +604,8 @@ function PhotoUpload({ data, setData, showToast, pid }) {
   }
 
   // Briše sliku iz aplikacije I s Google Drive-a (po path + filename).
+  // (Bez window.confirm — u PWA zna biti blokiran; fajl na Drive-u ide u smeće.)
   function deleteUpload(u) {
-    if (!window.confirm("Obrisati ovu sliku — i iz aplikacije i s Google Drive-a?")) return;
     setData(d => ({ ...d, uploads: (d.uploads || []).filter(x => x.id !== u.id) }));
     if (driveUrl && u.path && u.filename) {
       fetch(driveUrl, {
@@ -835,6 +835,52 @@ function GuideTab() {
   );
 }
 
+// ─── PRAVILA & SAVJETI ZA PREHRANU (na bazi istraživanja) ────
+const NUTRITION_RULES = [
+  { icon: "🫒", title: "Ulja i masti", color: "#84cc16", tips: [
+    "Maslinovo ulje (extra virgin) za salate i blago kuhanje — ne pregrijavaj do dima.",
+    "Za jako prženje koristi avokado ili kokosovo ulje (podnose visoku temperaturu).",
+    "Izbjegavaj rafinisana biljna ulja (suncokret, kukuruz, soja) — pojačavaju upalu.",
+    "Zdrave masti: avokado, orašasti plodovi, masna riba, maslinovo ulje. Mast NIJE neprijatelj — bira se kvalitet."
+  ]},
+  { icon: "🧂", title: "So i začini", color: "#06b6d4", tips: [
+    "Manje soli — okus gradi začinima i svježim biljem umjesto soli.",
+    "Kurkuma + crni biber zajedno (biber višestruko poveća apsorpciju kurkume).",
+    "Đumbir, bijeli luk, cimet — prirodno anti-upalno i za probavu.",
+    "Cimet pomaže stabilizaciju šećera u krvi — odličan u zobi/jogurtu."
+  ]},
+  { icon: "🍬", title: "Kad organizam traži šećer", color: "#ec4899", tips: [
+    "Žudnja za šećerom često = manjak proteina, sna ili vode (ne pravi glad).",
+    "Prvo popij čašu vode i sačekaj 10 min — često prođe.",
+    "Posegni za voćem + orasima ili grčkim jogurtom s bobicama umjesto slatkiša.",
+    "Ako baš moraš — tamna čokolada 85%+, mali komad.",
+    "Ne drži slatkiše u kući. Redovni obroci s proteinom sprečavaju nagle padove šećera i 'napade' gladi."
+  ]},
+  { icon: "🍳", title: "Priprema hrane", color: "#f59e0b", tips: [
+    "Peci, kuhaj, na pari ili roštilj — umjesto prženja u dubokom ulju.",
+    "Ne zagaraj/pretpeci meso (zagorjeli dijelovi su štetni).",
+    "Povrće kuhaj kratko (al dente) da zadrži vitamine.",
+    "Meal-prep: skuhaj proteine i žitarice unaprijed za 2-3 dana."
+  ]},
+  { icon: "💧", title: "Hidracija", color: "#3b82f6", tips: [
+    "Cilj ~2.5-3 L vode dnevno.",
+    "Žeđ se često zamijeni za glad — popij vodu prije nego posegneš za hranom.",
+    "Čaša vode prije obroka pomaže sitosti i kontroli porcija."
+  ]},
+  { icon: "🍽️", title: "Tanjir i navike", color: "#22c55e", tips: [
+    "Pola tanjira povrće, četvrtina protein, četvrtina složeni ugljikohidrati.",
+    "Protein uz SVAKI obrok — sitost i čuvanje mišića.",
+    "Ne jedi 2-3 h prije spavanja.",
+    "Jedi polako i žvaći — sitost stiže za ~20 min.",
+    "Pravilo 80/20: dosljednost, ne savršenstvo. Jedan slobodan obrok sedmično je OK."
+  ]},
+  { icon: "🔥", title: "Anti-upalno (važno za Ahilovu)", color: "#ef4444", tips: [
+    "Više omega-3: losos, sardine, skuša, orasi, lanene/chia sjemenke.",
+    "Kurkuma, đumbir, bobičasto voće, lisnato povrće — smiruju upalu.",
+    "Manje prerađene hrane, šećera i alkohola — pojačavaju upalu i usporavaju oporavak."
+  ]}
+];
+
 // ─── MAIN APP ────────────────────────────────────────────────
 function App() {
   const [tab, setTab] = useState("Dashboard");
@@ -847,6 +893,7 @@ function App() {
   const [wakeTime, setWakeTime] = useState("05:30");
   const [mealOpt, setMealOpt] = useState(0);
   const [showHistory, setShowHistory] = useState(false);
+  const [showRules, setShowRules] = useState(false);
   const fileRef = useRef();
 
   useEffect(() => { save(data); }, [data]);
@@ -1226,6 +1273,21 @@ function App() {
                   <span style={{ background:"#334155", borderRadius:6, padding:"2px 8px", fontSize:12, color:"#94a3b8" }}>{m.k} kcal</span>
                 </div>
                 <div style={{ fontSize:13, color:"#94a3b8" }}>{m.d}</div>
+              </div>
+            ))}
+
+            <button onClick={()=>setShowRules(s=>!s)} style={{ width:"100%", padding:13, background:"#7c3aed", border:"none", borderRadius:10, color:"#fff", fontWeight:700, fontSize:15, cursor:"pointer", marginTop:6, marginBottom:12 }}>
+              📖 Pravila & savjeti pri kuhanju {showRules?"▲":"▼"}
+            </button>
+            {showRules && NUTRITION_RULES.map(r=>(
+              <div key={r.title} style={{ ...card, borderLeft:`3px solid ${r.color}` }}>
+                <div style={{ fontSize:15, fontWeight:700, color:r.color, marginBottom:8 }}>{r.icon} {r.title}</div>
+                {r.tips.map((t,i)=>(
+                  <div key={i} style={{ display:"flex", gap:8, marginBottom:6 }}>
+                    <span style={{ color:r.color, flexShrink:0 }}>•</span>
+                    <span style={{ fontSize:13, color:"#cbd5e1", lineHeight:1.5 }}>{t}</span>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
