@@ -1,7 +1,7 @@
 const { useState, useEffect, useRef } = React;
 
 const TODAY = "2026-05-31";
-const APP_VERSION = "v6";
+const APP_VERSION = "v7";
 const GOAL1 = { label: "🇫🇷 Paris 20km", date: "2026-10-11", days: Math.floor((new Date("2026-10-11") - new Date(TODAY)) / 86400000) };
 const GOAL2 = { label: "🇧🇪 Brussels 20km", date: "2027-05-30", days: Math.floor((new Date("2027-05-30") - new Date(TODAY)) / 86400000) };
 
@@ -25,12 +25,19 @@ const TABS = ["Dashboard", "Raspored", "Trening", "Snaga", "Rehab", "Ahilova", "
 // Putanje odgovaraju stvarnim folderima na Google Drive-u (Training Hub).
 // {P} se zamijeni imenom aktivne osobe (Slato / Nina).
 const PHOTO_CATEGORIES = [
-  { id: "hrana",      label: "🍽️ Hrana / računi",   path: "04_Slike/Hrana_Racuni" },
-  { id: "suplementi", label: "💊 Suplementi",         path: "04_Slike/Suplementi" },
-  { id: "krv",        label: "🩸 Krvna slika",        path: "01_Medicinski_Nalazi/{P}/Krvna_Slika" },
-  { id: "recepti",    label: "💊 Recepti / ljekovi",  path: "01_Medicinski_Nalazi/{P}/Recepti_Ljekovi" },
-  { id: "progres",    label: "📸 Foto napretka",      path: "04_Slike/{P}_Progress" }
+  { id: "hrana",      label: "🍽️ Hrana / računi",   path: "04_Slike/Hrana_Racuni", folderId: "1hUJ2cBylPsYQXx_3aS1r5eueRVPJ_QE5" },
+  { id: "suplementi", label: "💊 Suplementi",         path: "04_Slike/Suplementi",   folderId: "1RbbsaeLShY22Ggq4o16MiErVCQ0xDoVe" },
+  { id: "krv",        label: "🩸 Krvna slika",        path: "01_Medicinski_Nalazi/{P}/Krvna_Slika",   folderId: { Slato: "1M_00IIaJNx_FNy_Ycc6me7p2uXFn0mzr", Nina: "1S1x_FsfYju6mTIHcmVkgNDF2vFke3TMa" } },
+  { id: "recepti",    label: "💊 Recepti / ljekovi",  path: "01_Medicinski_Nalazi/{P}/Recepti_Ljekovi", folderId: { Slato: "1vwKMonC9YeLeK9jQqNoHVqXpxtsDCm3_", Nina: "1zcXl6jgLuajJ8ddb89fq0lrPVjPIgpMX" } },
+  { id: "progres",    label: "📸 Foto napretka",      path: "04_Slike/{P}_Progress", folderId: { Slato: "1S2AzgMTXNyyfzjxtRO0qJn1GwgF2ehW9", Nina: "1CM2Z3X1HdgUksyK_rBq2Km7nFAh-9SDn" } }
 ];
+
+// Vrati Drive URL foldera za kategoriju + osobu (Slato/Nina).
+function folderUrlFor(catObj, pname) {
+  const f = catObj && catObj.folderId;
+  const id = typeof f === "string" ? f : (f && f[pname]);
+  return id ? `https://drive.google.com/drive/folders/${id}` : "";
+}
 
 const scheduleData = {
   slato: { wake: "05:30", days: [
@@ -605,24 +612,22 @@ function PhotoUpload({ data, setData, showToast, pid }) {
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
       const ext = ((file.type.split("/")[1]) || "jpg").replace("jpeg", "jpg");
       const filename = `${pname}_${stamp}.${ext}`;
-      // cors: ako Apps Script vrati CORS header, pročitamo LINK slike (url) na Drive-u.
-      // Ako ne (catch), slika je SVEJEDNO poslana — zabilježimo bez linka.
+      const folderUrl = folderUrlFor(catObj, pname);
+      // no-cors: zahtjev pouzdano prolazi i fajl se kreira. Folder na Drive-u
+      // znamo unaprijed (folderUrl) pa imamo pouzdan link "Otvori folder".
       // Sličicu (thumb) čuvamo lokalno za jasan preview u aplikaciji.
       makeThumb(dataUrl, 700).then(thumb => {
         fetch(driveUrl, {
           method: "POST",
+          mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({ path, filename, mimeType: file.type || "image/jpeg", data: base64 })
         })
-          .then(r => r.json())
-          .then(j => {
-            setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, filename, date: TODAY, thumb, url: (j && j.url) || "" }, ...(d.uploads || [])].slice(0, 25) }));
+          .then(() => {
+            setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, filename, date: TODAY, thumb, folderUrl }, ...(d.uploads || [])].slice(0, 25) }));
             showToast("✅ Slika poslana na Drive!");
           })
-          .catch(() => {
-            setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, filename, date: TODAY, thumb }, ...(d.uploads || [])].slice(0, 25) }));
-            showToast("✅ Slika poslana (link nedostupan)");
-          })
+          .catch(() => showToast("❌ Nema veze s internetom"))
           .then(() => setBusy(false));
       });
     };
@@ -680,6 +685,7 @@ function PhotoUpload({ data, setData, showToast, pid }) {
         </div>
         <div style={{ fontSize: 11, color: "#64748b", marginTop: 8 }}>
           📁 Ide u: <b style={{ color: "#94a3b8" }}>{selected.path.replace("{P}", pname)}</b>
+          {folderUrlFor(selected, pname) && <> · <a href={folderUrlFor(selected, pname)} target="_blank" rel="noreferrer" style={{ color: "#3b82f6", fontWeight: 700 }}>📂 Otvori folder ↗</a></>}
         </div>
       </div>
 
@@ -706,7 +712,7 @@ function PhotoUpload({ data, setData, showToast, pid }) {
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.label || u.path}</div>
               <div style={{ fontSize: 11, color: "#64748b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.path} · {u.date}</div>
-              {u.url && <a href={u.url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: "#3b82f6", fontWeight: 700 }}>Otvori na Drive ↗</a>}
+              {(u.folderUrl || u.url) && <a href={u.folderUrl || u.url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: "#3b82f6", fontWeight: 700 }}>📂 Otvori folder ↗</a>}
             </div>
             <button onClick={() => deleteUpload(u)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: 16, flexShrink: 0 }}>🗑️</button>
           </div>
