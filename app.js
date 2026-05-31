@@ -273,60 +273,6 @@ const achillesPhases = [
   ]}
 ];
 
-// ─── AI EXERCISE HELPER ──────────────────────────────────────
-function AIExerciseHelper({ exercise, pid }) {
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [variants, setVariants] = useState(null);
-
-  async function getVariants() {
-    if (variants) { setOpen(true); return; }
-    setLoading(true); setOpen(true);
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{ role: "user", content: `Generate exactly 3 variants for exercise "${exercise.name}" (${exercise.sets}). Context: ${pid === "slato" ? "Male 41y, Achilles tendinosis, resistance bands at home, NO jumping" : "Female 39y, gym access, fat loss + strength"}. Respond ONLY with valid JSON no markdown: {"variants":[{"level":"Beginner","name":"...","sets":"...","tip":"..."},{"level":"Intermediate","name":"...","sets":"...","tip":"..."},{"level":"Advanced","name":"...","sets":"...","tip":"..."}]}` }]
-        })
-      });
-      const d = await res.json();
-      const txt = d.content?.find(b => b.type === "text")?.text || "";
-      const parsed = JSON.parse(txt.replace(/```json|```/g, "").trim());
-      setVariants(parsed.variants);
-    } catch { setVariants([{ level: "Greška", name: "Pokušaj ponovo", sets: "—", tip: "API greška" }]); }
-    setLoading(false);
-  }
-
-  const lvlC = { Beginner: "#22c55e", Intermediate: "#f59e0b", Advanced: "#ef4444" };
-  return (
-    <div style={{ marginTop: 6 }}>
-      <button onClick={getVariants} style={{ padding: "4px 10px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700, background: "#7c3aed", color: "#fff" }}>🤖 AI varijante</button>
-      {open && (
-        <div style={{ marginTop: 8, background: "#0f172a", borderRadius: 8, padding: 10 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-            <span style={{ fontSize: 12, color: "#7c3aed", fontWeight: 700 }}>3 varijante</span>
-            <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b" }}>✕</button>
-          </div>
-          {loading ? <div style={{ color: "#94a3b8", fontSize: 13 }}>⏳ Generišem...</div> :
-            variants?.map((v, i) => (
-              <div key={i} style={{ padding: "7px 0", borderBottom: i < 2 ? "1px solid #334155" : "none" }}>
-                <div style={{ display: "flex", gap: 6, marginBottom: 2 }}>
-                  <span style={{ background: lvlC[v.level] || "#64748b", borderRadius: 4, padding: "1px 7px", fontSize: 10, fontWeight: 700, color: "#fff" }}>{v.level}</span>
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{v.name}</span>
-                </div>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>{v.sets} · {v.tip}</div>
-              </div>
-            ))
-          }
-        </div>
-      )}
-    </div>
-  );
-}
-
 // ─── ACHILLES TAB ────────────────────────────────────────────
 function AchillesTab({ showToast }) {
   const [activePhase, setActivePhase] = useState(1);
@@ -431,7 +377,6 @@ function AchillesTab({ showToast }) {
 
 // ─── SHOPPING LIST ────────────────────────────────────────────
 function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShoppingChecked, showToast }) {
-  const [aiLoading, setAiLoading] = useState(false);
   const [newItem, setNewItem] = useState("");
   const [newCat, setNewCat] = useState("🥩 Proteini");
   const [selectedOpts, setSelectedOpts] = useState({ slato: 0, nina: 0 });
@@ -463,28 +408,35 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
     setShoppingList([]); setShoppingChecked([]); showToast("🗑️ Lista očišćena!");
   }
 
-  async function generateAI() {
-    setAiLoading(true);
-    const sOpt = mealOptions.slato.options[selectedOpts.slato].name;
-    const nOpt = mealOptions.nina.options[selectedOpts.nina].name;
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1500,
-          messages: [{ role: "user", content: `Weekly grocery list for 2 people, 7 days. Slato (41y male, 2400kcal, anti-inflammatory, Achilles rehab): "${sOpt}". Nina (39y female, 1750kcal deficit, fat loss): "${nOpt}". Store: ${store} Belgium. NO sugar, NO white flour. Dutch/French product names. Min 30 items. Respond ONLY with JSON array starting with [ no markdown: [{"name":"Kippenborst","qty":"1.5kg","cat":"🥩 Proteini"}]` }]
-        })
+  // Razvrstaj namirnicu u kategoriju po ključnim riječima.
+  function catOf(name) {
+    const s = name.toLowerCase();
+    const has = (...ks) => ks.some(k => s.includes(k));
+    if (has("ulje", "puter", "med ", "hummus", "soja sos")) return "🧴 Ostalo";
+    if (has("protein prah", "protein shake", "whey", "casein", "kreatin", "omega", "vitamin", "kolagen", "magnezij", "probiot", "suplement")) return "🫙 Suplementi";
+    if (has("jogurt", "skut", "kefir", "feta", "sir")) return "🥛 Mliječni proizvodi";
+    if (has("pilet", "pile", "jaj", "bjelanj", "losos", "tuna", "govedin", "sardin", "skuš", "skus", "bakalar", "tofu", "šunk", "sunk")) return "🥩 Proteini";
+    if (has("zob", "pahuljic", "kvinoj", "quinoa", "riž", "riz", "hljeb", "hleb", "oats", "chia", "leć", "lec", "keks", "rižin", "rizin")) return "🌾 Žitarice & Suhe namirnice";
+    if (has("borovnic", "jagod", "banan", "jabuk", "kruš", "krus", "brokul", "špinat", "spinat", "spanać", "spanac", "avokado", "paradajz", "salat", "tikvic", "paprik", "krastav", "celer", "mandarin", "narandž", "naranc", "đumbir", "dumbir", "kurkum", "luk", "maslin", "povrć", "povrc", "batat", "limun", "voće", "voce")) return "🥦 Povrće & Voće";
+    return "🧴 Ostalo";
+  }
+
+  // Generiše listu LOKALNO iz sastojaka odabranih jelovnika (bez interneta).
+  function generateLocal() {
+    const opts = [mealOptions.slato.options[selectedOpts.slato], mealOptions.nina.options[selectedOpts.nina]];
+    const seen = {}, out = [];
+    opts.forEach(opt => (opt.meals || []).forEach(m => {
+      String(m.d).split("+").forEach(raw => {
+        const name = raw.split(":").pop().trim();
+        if (!name) return;
+        const key = name.toLowerCase().replace(/\d+\s*(g|ml|kom)?/g, "").replace(/\s+/g, " ").trim();
+        if (!key || seen[key]) return;
+        seen[key] = true;
+        out.push({ id: Date.now() + Math.random(), name: name.charAt(0).toUpperCase() + name.slice(1), cat: catOf(name), manual: false });
       });
-      const d = await res.json();
-      const txt = d.content?.find(b => b.type === "text")?.text || "";
-      const parsed = JSON.parse(txt.replace(/```json|```/g, "").trim());
-      const newItems = parsed.map(x => ({ id: Date.now() + Math.random(), name: `${x.name}${x.qty ? " — " + x.qty : ""}`, cat: x.cat || "🧴 Ostalo", manual: false }));
-      setShoppingList(newItems); setShoppingChecked([]);
-      showToast(`✅ Generisano ${newItems.length} namirnica!`);
-    } catch { showToast("❌ Greška — pokušaj ponovo"); }
-    setAiLoading(false);
+    }));
+    setShoppingList(out); setShoppingChecked([]);
+    showToast(out.length ? `✅ Lista: ${out.length} namirnica iz jelovnika` : "Nema sastojaka");
   }
 
   const unchecked = items.filter(x => !checked.includes(x.id));
@@ -497,7 +449,7 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
         {items.length > 0 ? `${unchecked.length} preostalo · ${checkedItems.length} kupljeno` : "Lista je prazna"}
       </div>
       <div style={{ background: bgC, borderRadius: 12, padding: 14, marginBottom: 12, borderTop: "3px solid #7c3aed" }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: "#7c3aed", marginBottom: 10 }}>🤖 AI Generator</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: "#7c3aed", marginBottom: 10 }}>🍽️ Generiši iz jelovnika</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
           <div style={{ flex: 1, minWidth: 140 }}>
             <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>👨 Slato plan</div>
@@ -522,8 +474,8 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
             ))}
           </div>
         </div>
-        <button onClick={generateAI} disabled={aiLoading} style={{ width: "100%", padding: 13, background: aiLoading ? "#334155" : "#7c3aed", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 15, cursor: aiLoading ? "default" : "pointer" }}>
-          {aiLoading ? "⏳ Generišem za 7 dana..." : "✨ Generiši listu za ovu sedmicu"}
+        <button onClick={generateLocal} style={{ width: "100%", padding: 13, background: "#7c3aed", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
+          ✨ Generiši listu iz jelovnika
         </button>
         {items.length > 0 && <button onClick={clearAll} style={{ width: "100%", padding: 8, background: "transparent", border: `1px solid ${bdr}`, borderRadius: 8, color: "#94a3b8", fontSize: 13, cursor: "pointer", marginTop: 8 }}>🗑️ Očisti cijelu listu</button>}
       </div>
@@ -720,7 +672,7 @@ function GuideTab() {
     { ic: "🏠", n: "Dashboard", d: "Početni pregled: odbrojavanje do ciljeva (Paris i Brussels), ukupno pređenih kilometara i koliko si treninga završio/la ove sedmice." },
     { ic: "📅", n: "Raspored", d: "Sedmični plan treninga po danima. Klikni na dan da ga označiš kao završen (✅) ili da poništiš. Gore biraš vrijeme buđenja." },
     { ic: "🏃", n: "Trening", d: "Ovdje BILJEŽIŠ svaki kardio trening — vrstu, kilometre, tempo, puls (HR) i bilješku. Ispod vidiš historiju svih treninga." },
-    { ic: "💪", n: "Snaga", d: "Vježbe snage podijeljene po danima. Svaka vježba ima broj serija, savjet, ▶️ video demonstraciju i 🤖 AI varijante (lakša/teža verzija)." },
+    { ic: "💪", n: "Snaga", d: "Vježbe snage podijeljene po danima. Svaka vježba ima broj serija, savjet i ▶️ video demonstraciju (klik na 'YT')." },
     { ic: "🩹", n: "Rehab", d: "Samo za Slatu. Checklist za oporavak Ahilove tetive — lijekovi, vježbe, led, istezanje." },
     { ic: "🦵", n: "Ahilova", d: "Samo za Slatu. Plan oporavka Ahilove kroz 3 faze (akutna → Alfredson → jačanje) s vježbama i nivoom dozvoljenog bola." },
     { ic: "🥗", n: "Prehrana", d: "5 opcija jelovnika po osobi s makronutrijentima (kalorije, proteini, ugljikohidrati, masti). Gore biraš opciju." },
@@ -804,10 +756,13 @@ function GuideTab() {
       </div>
 
       <div style={{ ...card, borderLeft: "3px solid #7c3aed" }}>
-        <div style={h}>🤖 AI varijante & ▶️ Video</div>
+        <div style={h}>▶️ Video demonstracije & 🛒 Lista</div>
         <div style={p}>
-          U tabu <b>Snaga</b> svaka vježba ima <b>🤖 AI varijante</b> (dobiješ lakšu/srednju/težu
-          verziju) i link koji otvara <b>video demonstraciju</b> na YouTubeu da vidiš pravilnu izvedbu.
+          U tabu <b>Snaga</b> svaka vježba ima crveno dugme <b>▶️ YT</b> koje otvara
+          video na YouTubeu da vidiš pravilnu izvedbu.
+          <br /><br />
+          U tabu <b>🛒 Lista</b> klikni <b>„Generiši listu iz jelovnika"</b> — sastojci iz
+          odabranih obroka se sami poslažu u listu za kupovinu (po kategorijama).
         </div>
       </div>
 
@@ -1177,7 +1132,6 @@ function App() {
                       </div>
                     </div>
                     <div style={{ fontSize:12, color:"#64748b", marginTop:2 }}>💡 {ex.tip}</div>
-                    <AIExerciseHelper exercise={ex} pid={pid} />
                   </div>
                 ))}
               </div>
