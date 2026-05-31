@@ -33,22 +33,22 @@ const PHOTO_CATEGORIES = [
 
 const scheduleData = {
   slato: { wake: "05:30", days: [
-    { day: "Ponedjeljak", time: "06:00", type: "Kardio BEZ trčanja + Rehab", details: "Bicikl / eliptical 30 min (Zone 2). Eccentric heel drops + led poslije.", icon: "🚴", duration: 45, noRun: true },
-    { day: "Utorak", time: "06:00", type: "Snaga gornji dio + Core", details: "Elastične trake — gornji dio + core. Jutarnja mobilnost 15 min.", icon: "💪", duration: 50 },
-    { day: "Srijeda", time: "06:00", type: "Plivanje ili Bicikl + Rehab", details: "Plivanje 30 min ili bicikl. Eccentric heel drops navečer.", icon: "🏊", duration: 40, noRun: true },
-    { day: "Četvrtak", time: "06:00", type: "Snaga noge (modificirano)", details: "Trake — hip thrust, banded clam, squat. BEZ skakanja.", icon: "💪", duration: 45 },
-    { day: "Petak", time: "06:00", type: "Kardio nisko + Rehab", details: "Bicikl 20-25 min lagano + kompletan rehab protokol.", icon: "🚴", duration: 40, noRun: true },
-    { day: "Subota", time: "07:00", type: "Brza šetnja s Ninom", details: "45-60 min zajedno. Kad kiné odobri → trčanje.", icon: "👫", duration: 60 },
-    { day: "Nedjelja", time: null, type: "Odmor + Foam rolling", details: "Foam rolling lista, istezanje. Rehab obavezno!", icon: "😴", duration: null }
+    { day: "Ponedjeljak", time: "06:00", type: "Kardio BEZ trčanja + Rehab", details: "Bicikl / eliptical 30 min (Zona 2). Eccentric heel drops 3×15 + led 15 min poslije.", icon: "🚴", duration: 45, noRun: true, goal: "Održati kardio bazu i hraniti Ahilovu tetivu — bez ijednog udara o tlo.", intensity: "Zona 2 · RPE 5-6" },
+    { day: "Utorak", time: "06:00", type: "Snaga gornji dio + Core", details: "Elastične trake — gornji dio + core. Jutarnja mobilnost 15 min.", icon: "💪", duration: 50, goal: "Jačati gornji dio tijela i trup dok Ahilova miruje.", intensity: "Snaga · RPE 7" },
+    { day: "Srijeda", time: "06:00", type: "Plivanje ili Bicikl + Rehab", details: "Plivanje 30 min ili bicikl. Eccentric heel drops navečer.", icon: "🏊", duration: 40, noRun: true, goal: "Aktivni oporavak i kardio bez opterećenja tetive.", intensity: "Zona 2 · RPE 5" },
+    { day: "Četvrtak", time: "06:00", type: "Snaga noge (modificirano)", details: "Trake — hip thrust, banded clam, squat. BEZ skakanja.", icon: "💪", duration: 45, goal: "Jačati kukove i gluteus bez skoka i bez bola u Ahilovoj.", intensity: "Snaga · RPE 7" },
+    { day: "Petak", time: "06:00", type: "Kardio nisko + Rehab", details: "Bicikl 20-25 min lagano + kompletan rehab protokol.", icon: "🚴", duration: 40, noRun: true, goal: "Lagani kardio + puni rehab protokol za tetivu.", intensity: "Zona 1-2 · RPE 4-5" },
+    { day: "Subota", time: "07:00", type: "Brza šetnja s Ninom", details: "45-60 min zajedno. Kad kiné odobri → lagano trčanje.", icon: "👫", duration: 60, goal: "Zajednička aktivnost i baza izdržljivosti; trčanje tek kad fizioterapeut dozvoli.", intensity: "Zona 2 · RPE 5-6" },
+    { day: "Nedjelja", time: null, type: "Odmor + Foam rolling", details: "Foam rolling lista, istezanje. Rehab obavezno!", icon: "😴", duration: null, goal: "Oporavak — bez njega nema napretka ni zacjeljivanja tetive.", intensity: "Odmor" }
   ]},
   nina: { wake: "05:30", days: [
-    { day: "Ponedjeljak", time: "06:00", type: "Trčanje (intervali hod/trk)", details: "5 min hod / 1 min trčanje — 30 min ukupno.", icon: "🏃", duration: 30 },
-    { day: "Utorak", time: "06:00", type: "Fitnes — Snaga (donji dio)", details: "Squats, lunges, hip thrust, leg press — 45 min.", icon: "🏋️", duration: 45 },
-    { day: "Srijeda", time: "06:00", type: "Trčanje (lako)", details: "Kontinuirano lagano trčanje 30-35 min.", icon: "🏃", duration: 35 },
-    { day: "Četvrtak", time: "06:00", type: "Fitnes — Snaga (gornji + core)", details: "Rows, press, plank, lat pulldown — 45 min.", icon: "🏋️", duration: 45 },
-    { day: "Petak", time: "06:00", type: "Trčanje ili kardio", details: "Trčanje 30 min ili eliptical.", icon: "🏃", duration: 30 },
-    { day: "Subota", time: "07:00", type: "Dugo trčanje (s Slatom)", details: "Lagano, Ninin tempo. Postepeno povećavati.", icon: "👫", duration: 60 },
-    { day: "Nedjelja", time: null, type: "Odmor + Mobilnost", details: "Istezanje, foam rolling, šetnja.", icon: "😴", duration: null }
+    { day: "Ponedjeljak", time: "06:00", type: "Trčanje (intervali hod/trk)", details: "5 min hod / 1 min trčanje — 30 min ukupno.", icon: "🏃", duration: 30, goal: "Graditi naviku trčanja; postepeno produžavati trčane intervale.", intensity: "Zona 2-3 · RPE 6" },
+    { day: "Utorak", time: "06:00", type: "Fitnes — Snaga (donji dio)", details: "Squats, lunges, hip thrust, leg press — 45 min.", icon: "🏋️", duration: 45, goal: "Jak donji dio i gluteus — temelj za 20 km bez ozljeda.", intensity: "Snaga · RPE 7-8" },
+    { day: "Srijeda", time: "06:00", type: "Trčanje (lako)", details: "Kontinuirano lagano trčanje 30-35 min.", icon: "🏃", duration: 35, goal: "Aerobna baza — tempo na kojem možeš pričati.", intensity: "Zona 2 · RPE 5-6" },
+    { day: "Četvrtak", time: "06:00", type: "Fitnes — Snaga (gornji + core)", details: "Rows, press, plank, lat pulldown — 45 min.", icon: "🏋️", duration: 45, goal: "Balansiran gornji dio i stabilan trup za bolju trkačku formu.", intensity: "Snaga · RPE 7-8" },
+    { day: "Petak", time: "06:00", type: "Trčanje ili kardio", details: "Trčanje 30 min ili eliptical.", icon: "🏃", duration: 30, goal: "Još jedan aerobni stimulus — trčanje ili kardio po izboru.", intensity: "Zona 2 · RPE 6" },
+    { day: "Subota", time: "07:00", type: "Dugo trčanje (s Slatom)", details: "Lagano, Ninin tempo. Postepeno povećavati udaljenost.", icon: "👫", duration: 60, goal: "NAJVAŽNIJI trening sedmice — gradi izdržljivost za 20 km.", intensity: "Zona 2 · RPE 5-6" },
+    { day: "Nedjelja", time: null, type: "Odmor + Mobilnost", details: "Istezanje, foam rolling, šetnja.", icon: "😴", duration: null, goal: "Oporavak i mobilnost — tijelo jača dok se odmara.", intensity: "Odmor" }
   ]}
 };
 
@@ -728,9 +728,9 @@ function GuideTab() {
   const num = c => ({ flexShrink: 0, width: 24, height: 24, borderRadius: "50%", background: c, color: "#fff", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" });
 
   const tabGuide = [
-    { ic: "🏠", n: "Dashboard", d: "Početni pregled: odbrojavanje do ciljeva (Paris i Brussels), ukupno pređenih kilometara i koliko si treninga završio/la ove sedmice." },
-    { ic: "📅", n: "Raspored", d: "Sedmični plan treninga po danima. Klikni na dan da ga označiš kao završen (✅) ili da poništiš. Gore biraš vrijeme buđenja." },
-    { ic: "🏃", n: "Trening", d: "Ovdje BILJEŽIŠ svaki kardio trening — vrstu, kilometre, tempo, puls (HR) i bilješku. Ispod vidiš historiju svih treninga." },
+    { ic: "🏠", n: "Dashboard", d: "Početni pregled: odbrojavanje do ciljeva, pređeni km, sedmični napredak. Tu je i 📋 Dnevni check-in (san, Ahilova bol, energija) — popuni ga svako jutro." },
+    { ic: "📅", n: "Raspored", d: "Sedmični plan. Tapni dan u traci da vidiš 🎯 cilj i detalje tog treninga. Dolje označavaš trening kao završen (✅). Gore biraš vrijeme buđenja." },
+    { ic: "🏃", n: "Trening", d: "Ovdje BILJEŽIŠ svaki kardio trening — vrstu, kilometre, tempo, puls (HR), RPE (koliko teško 1-10) i bilješku. Ispod vidiš historiju." },
     { ic: "💪", n: "Snaga", d: "Vježbe snage podijeljene po danima. Svaka vježba ima broj serija, savjet i ▶️ video demonstraciju (klik na 'YT')." },
     { ic: "🩹", n: "Rehab", d: "Samo za Slatu. Checklist za oporavak Ahilove tetive — lijekovi, vježbe, led, istezanje." },
     { ic: "🦵", n: "Ahilova", d: "Samo za Slatu. Plan oporavka Ahilove kroz 3 faze (akutna → Alfredson → jačanje) s vježbama i nivoom dozvoljenog bola." },
@@ -918,7 +918,7 @@ function App() {
   const [tab, setTab] = useState("Dashboard");
   const [pid, setPid] = useState("slato");
   const [data, setData] = useState(load);
-  const [form, setForm] = useState({ type: "bike", km: "", pace_min: "", pace_sec: "", duration: "", hr: "", notes: "", date: TODAY });
+  const [form, setForm] = useState({ type: "bike", km: "", pace_min: "", pace_sec: "", duration: "", hr: "", rpe: "", notes: "", date: TODAY });
   const [wInput, setWInput] = useState("");
   const [rehabDone, setRehabDone] = useState({});
   const [toast, setToast] = useState("");
@@ -926,6 +926,8 @@ function App() {
   const [mealOpt, setMealOpt] = useState(0);
   const [showHistory, setShowHistory] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [openDay, setOpenDay] = useState(null);
+  const [checkin, setCheckin] = useState({ sleepH: "", sleepQ: 0, pain: 0, energy: 0 });
   const fileRef = useRef();
 
   useEffect(() => { save(data); }, [data]);
@@ -964,7 +966,7 @@ function App() {
     const updated = { ...data };
     updated[pid] = { ...updated[pid], logs: [{ ...form, id: Date.now() }, ...(updated[pid].logs || [])] };
     setData(updated);
-    setForm({ type: pid === "slato" ? "bike" : "run", km: "", pace_min: "", pace_sec: "", duration: "", hr: "", notes: "", date: TODAY });
+    setForm({ type: pid === "slato" ? "bike" : "run", km: "", pace_min: "", pace_sec: "", duration: "", hr: "", rpe: "", notes: "", date: TODAY });
     showToast("✅ Trening zabilježen!");
   }
 
@@ -979,6 +981,16 @@ function App() {
     const updated = { ...data };
     updated[pid] = { ...updated[pid], weights: [{ weight: parseFloat(wInput), date: TODAY, ts: Date.now() }, ...(updated[pid].weights || [])] };
     setData(updated); setWInput(""); showToast("✅ Težina zapisana!");
+  }
+
+  function logCheckin() {
+    const entry = { date: TODAY, sleepH: checkin.sleepH, sleepQ: checkin.sleepQ, pain: checkin.pain, energy: checkin.energy };
+    setData(d => {
+      const pd = d[pid] || {};
+      const rest = (pd.checkins || []).filter(c => c.date !== TODAY);
+      return { ...d, [pid]: { ...pd, checkins: [entry, ...rest] } };
+    });
+    showToast("✅ Dnevni check-in sačuvan!");
   }
 
   function parseGPX(text) {
@@ -1061,6 +1073,34 @@ function App() {
                 <div style={{ fontSize:11, color:"#64748b" }}>od početka</div>
               </div>
             </div>
+            <div style={{ ...card, borderLeft:`3px solid ${profile.color}` }}>
+              <div style={{ fontSize:13, fontWeight:700, color:"#94a3b8", marginBottom:10 }}>📋 Dnevni check-in {(pData.checkins||[]).some(c=>c.date===TODAY) && <span style={{ color:"#22c55e", fontSize:11, fontWeight:700 }}>✓ uneseno danas</span>}</div>
+              <div style={{ marginBottom:10 }}>
+                <label style={{ fontSize:12, color:"#94a3b8" }}>😴 San (sati)</label>
+                <input type="number" step="0.5" value={checkin.sleepH} onChange={e=>setCheckin({...checkin, sleepH:e.target.value})} placeholder="7.5" style={inp}/>
+              </div>
+              <div style={{ marginBottom:10 }}>
+                <label style={{ fontSize:12, color:"#94a3b8" }}>Kvaliteta sna (1 loše → 5 odlično)</label>
+                <div style={{ display:"flex", gap:6, marginTop:6 }}>
+                  {[1,2,3,4,5].map(n=><button key={n} onClick={()=>setCheckin({...checkin,sleepQ:n})} style={{ flex:1, padding:8, borderRadius:8, border:"none", cursor:"pointer", fontWeight:700, background:checkin.sleepQ===n?profile.color:"#334155", color:"#fff" }}>{n}</button>)}
+                </div>
+              </div>
+              {pid==="slato" && (
+                <div style={{ marginBottom:10 }}>
+                  <label style={{ fontSize:12, color:"#94a3b8" }}>🦵 Ahilova bol (0 nema → 10 jaka)</label>
+                  <div style={{ display:"flex", gap:3, marginTop:6, flexWrap:"wrap" }}>
+                    {[0,1,2,3,4,5,6,7,8,9,10].map(n=>{ const c=n<=2?"#22c55e":n<=5?"#f59e0b":"#ef4444"; return <button key={n} onClick={()=>setCheckin({...checkin,pain:n})} style={{ width:28, height:32, borderRadius:6, border:"none", cursor:"pointer", fontWeight:700, fontSize:12, background:checkin.pain===n?c:"#334155", color:"#fff" }}>{n}</button>; })}
+                  </div>
+                </div>
+              )}
+              <div style={{ marginBottom:12 }}>
+                <label style={{ fontSize:12, color:"#94a3b8" }}>⚡ Energija (1 iscrpljen → 5 odlično)</label>
+                <div style={{ display:"flex", gap:6, marginTop:6 }}>
+                  {[1,2,3,4,5].map(n=><button key={n} onClick={()=>setCheckin({...checkin,energy:n})} style={{ flex:1, padding:8, borderRadius:8, border:"none", cursor:"pointer", fontWeight:700, background:checkin.energy===n?profile.color:"#334155", color:"#fff" }}>{n}</button>)}
+                </div>
+              </div>
+              <button onClick={logCheckin} style={{ width:"100%", padding:11, background:profile.color, border:"none", borderRadius:10, color:"#fff", fontWeight:700, fontSize:14, cursor:"pointer" }}>💾 Spremi check-in</button>
+            </div>
             <div style={card}>
               <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                 <div style={{ fontSize:13, color:"#94a3b8" }}>Ova sedmica: {completedThisWeek}/{totalDaysWithTraining}</div>
@@ -1110,17 +1150,44 @@ function App() {
                 <button key={t} onClick={()=>setWakeTime(t)} style={{ padding:"6px 14px", borderRadius:16, border:"none", cursor:"pointer", fontWeight:700, fontSize:13, background:wakeTime===t?profile.color:"#334155", color:"#fff" }}>{t}</button>
               ))}
             </div>
-            <div style={{ display:"flex", gap:4, marginBottom:14 }}>
+            <div style={{ fontSize:11, color:"#64748b", marginBottom:6 }}>👆 Tapni dan za cilj i detalje treninga</div>
+            <div style={{ display:"flex", gap:4, marginBottom:10 }}>
               {scheduleData[pid].days.map((d,i)=>{
-                const done=doneDaysThisWeek.includes(i), isToday=dowMap[d.day]===todayDOW;
+                const done=doneDaysThisWeek.includes(i), isToday=dowMap[d.day]===todayDOW, isOpen=openDay===i;
                 return (
-                  <div key={i} style={{ flex:1, textAlign:"center" }}>
-                    <div style={{ height:6, borderRadius:3, background:done?"#22c55e":isToday?profile.color:"#334155", marginBottom:3 }}/>
-                    <div style={{ fontSize:9, color:done?"#22c55e":isToday?profile.color:"#64748b", fontWeight:700 }}>{d.day.slice(0,3).toUpperCase()}</div>
-                  </div>
+                  <button key={i} onClick={()=>setOpenDay(isOpen?null:i)} style={{ flex:1, textAlign:"center", background:isOpen?"#334155":"transparent", border:"none", borderRadius:8, padding:"4px 2px", cursor:"pointer" }}>
+                    <div style={{ height:6, borderRadius:3, background:done?"#22c55e":isToday?profile.color:"#475569", marginBottom:3 }}/>
+                    <div style={{ fontSize:9, color:done?"#22c55e":isToday?profile.color:"#94a3b8", fontWeight:700 }}>{d.day.slice(0,3).toUpperCase()}</div>
+                  </button>
                 );
               })}
             </div>
+            {openDay!=null && (()=>{
+              const d=scheduleData[pid].days[openDay];
+              return (
+                <div style={{ ...card, borderLeft:`3px solid ${profile.color}`, marginBottom:14 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+                    <div style={{ fontSize:16, fontWeight:700 }}>{d.icon} {d.day}</div>
+                    <button onClick={()=>setOpenDay(null)} style={{ background:"none", border:"none", color:"#64748b", fontSize:16, cursor:"pointer" }}>✕</button>
+                  </div>
+                  <div style={{ fontSize:15, color:profile.color, fontWeight:700, marginBottom:8 }}>{d.type}</div>
+                  <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:10 }}>
+                    {d.time && <span style={{ background:"#334155", borderRadius:6, padding:"3px 10px", fontSize:12 }}>🕕 {d.time}</span>}
+                    {d.duration && <span style={{ background:"#334155", borderRadius:6, padding:"3px 10px", fontSize:12 }}>⏱️ {d.duration} min</span>}
+                    {d.intensity && <span style={{ background:"#334155", borderRadius:6, padding:"3px 10px", fontSize:12 }}>🔥 {d.intensity}</span>}
+                  </div>
+                  {d.noRun && pid==="slato" && <div style={{ fontSize:12, color:"#ef4444", fontWeight:700, marginBottom:8 }}>⛔ BEZ trčanja / skakanja (zaštita Ahilove)</div>}
+                  <div style={{ background:"#0f172a", borderRadius:8, padding:10, marginBottom:8 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:profile.color, marginBottom:3 }}>🎯 Cilj</div>
+                    <div style={{ fontSize:13, color:"#cbd5e1", lineHeight:1.5 }}>{d.goal}</div>
+                  </div>
+                  <div style={{ background:"#0f172a", borderRadius:8, padding:10 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:"#94a3b8", marginBottom:3 }}>📋 Šta raditi</div>
+                    <div style={{ fontSize:13, color:"#cbd5e1", lineHeight:1.5 }}>{d.details}</div>
+                  </div>
+                </div>
+              );
+            })()}
             {activeDays.length > 0 && (
               <>
                 <div style={{ fontSize:12, color:"#94a3b8", fontWeight:700, marginBottom:8, textTransform:"uppercase", letterSpacing:1 }}>Preostalo ove sedmice</div>
@@ -1205,6 +1272,15 @@ function App() {
               {!["run","bike"].includes(form.type)&&<div style={{ marginBottom:12 }}><label style={{ fontSize:13, color:"#94a3b8" }}>Trajanje (min)</label><input value={form.duration} onChange={e=>setForm({...form,duration:e.target.value})} placeholder="45" type="number" style={inp}/></div>}
               <div style={{ marginBottom:10 }}><label style={{ fontSize:13, color:"#94a3b8" }}>HR (bpm)</label><input value={form.hr} onChange={e=>setForm({...form,hr:e.target.value})} placeholder="145" type="number" style={inp}/></div>
               <div style={{ marginBottom:10 }}><label style={{ fontSize:13, color:"#94a3b8" }}>Datum</label><input type="date" value={form.date} onChange={e=>setForm({...form,date:e.target.value})} style={inp}/></div>
+              <div style={{ marginBottom:12 }}>
+                <label style={{ fontSize:13, color:"#94a3b8" }}>RPE — koliko je bilo teško? (1 lako → 10 maksimalno)</label>
+                <div style={{ display:"flex", gap:4, marginTop:6, flexWrap:"wrap" }}>
+                  {[1,2,3,4,5,6,7,8,9,10].map(n=>{
+                    const c = n<=3?"#22c55e":n<=6?"#f59e0b":n<=8?"#f97316":"#ef4444";
+                    return <button key={n} onClick={()=>setForm({...form,rpe:n})} style={{ width:30, height:34, borderRadius:8, border:"none", cursor:"pointer", fontWeight:700, fontSize:13, background:form.rpe===n?c:"#334155", color:"#fff" }}>{n}</button>;
+                  })}
+                </div>
+              </div>
               <div style={{ marginBottom:14 }}><label style={{ fontSize:13, color:"#94a3b8" }}>Napomena</label><input value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})} placeholder="Osjećaj, bol..." style={inp}/></div>
               <button onClick={logTraining} style={{ width:"100%", padding:13, background:profile.color, border:"none", borderRadius:10, color:"#fff", fontWeight:700, fontSize:16, cursor:"pointer" }}>✅ Zabilježi</button>
             </div>
@@ -1213,7 +1289,7 @@ function App() {
               {(pData.logs||[]).length===0&&<div style={{ color:"#64748b" }}>Nema treninga.</div>}
               {(pData.logs||[]).map(log=>(
                 <div key={log.id} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:`1px solid ${bdr}` }}>
-                  <div><div style={{ fontSize:13, fontWeight:600 }}>{log.type==="run"?`🏃 ${log.km}km${log.pace_min?` @ ${log.pace_min}:${log.pace_sec||"00"}`:""}`:log.type==="bike"?`🚴 ${log.km?log.km+"km":log.duration+"min"}`:log.type==="swim"?`🏊 ${log.duration}min`:log.type==="strength"?`💪 ${log.duration||""}min`:log.type==="mobility"?`🧘 ${log.duration||""}min`:`🦵 Rehab`}{log.hr?` · ♥ ${log.hr}bpm`:""}</div><div style={{ fontSize:11, color:"#64748b" }}>{log.date}{log.notes?` · ${log.notes}`:""}</div></div>
+                  <div><div style={{ fontSize:13, fontWeight:600 }}>{log.type==="run"?`🏃 ${log.km}km${log.pace_min?` @ ${log.pace_min}:${log.pace_sec||"00"}`:""}`:log.type==="bike"?`🚴 ${log.km?log.km+"km":log.duration+"min"}`:log.type==="swim"?`🏊 ${log.duration}min`:log.type==="strength"?`💪 ${log.duration||""}min`:log.type==="mobility"?`🧘 ${log.duration||""}min`:`🦵 Rehab`}{log.hr?` · ♥ ${log.hr}bpm`:""}</div><div style={{ fontSize:11, color:"#64748b" }}>{log.date}{log.rpe?` · RPE ${log.rpe}`:""}{log.notes?` · ${log.notes}`:""}</div></div>
                   <button onClick={()=>deleteLog(log.id)} style={{ background:"none", border:"none", cursor:"pointer", color:"#ef4444", fontSize:15 }}>✕</button>
                 </div>
               ))}
