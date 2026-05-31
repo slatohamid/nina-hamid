@@ -22,7 +22,7 @@ var ROOT_FOLDER_ID = "13krrnlKJAote1PSn7vLNTkB8VUDl4ONz";
 
 // Test u browseru — ako otvoriš /exec link treba pisati da radi.
 function doGet() {
-  return json({ ok: true, msg: "Radi! Zalijepi ovaj /exec link u aplikaciju (tab Slike → Postavke)." });
+  return json({ ok: true, version: "v3 (Training Hub + brisanje)", folderId: ROOT_FOLDER_ID, msg: "Radi! Ako vidiš ovu verziju, redeploy je uspio." });
 }
 
 // Prima sliku (upload) ili zahtjev za brisanje (action: "delete").

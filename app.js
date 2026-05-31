@@ -544,6 +544,24 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
 }
 
 // ─── SLIKE → GOOGLE DRIVE ────────────────────────────────────
+// Napravi malu sličicu (thumbnail) iz slike za preview u aplikaciji.
+function makeThumb(dataUrl, maxSize) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width * scale));
+      const h = Math.max(1, Math.round(img.height * scale));
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      try { resolve(c.toDataURL("image/jpeg", 0.7)); } catch (e) { resolve(""); }
+    };
+    img.onerror = () => resolve("");
+    img.src = dataUrl;
+  });
+}
+
 function PhotoUpload({ data, setData, showToast, pid }) {
   const bg = "#0f172a", bgC = "#1e293b", bdr = "#334155";
   const pname = pid === "slato" ? "Slato" : "Nina";
@@ -552,6 +570,7 @@ function PhotoUpload({ data, setData, showToast, pid }) {
   const [urlInput, setUrlInput] = useState(driveUrl);
   const [cat, setCat] = useState(PHOTO_CATEGORIES[0].id);
   const [busy, setBusy] = useState(false);
+  const [preview, setPreview] = useState(null);
   const [showCfg, setShowCfg] = useState(!driveUrl);
   const camRef = useRef();
   const galRef = useRef();
@@ -578,7 +597,8 @@ function PhotoUpload({ data, setData, showToast, pid }) {
     setBusy(true);
     const reader = new FileReader();
     reader.onload = ev => {
-      const base64 = String(ev.target.result).split(",")[1];
+      const dataUrl = String(ev.target.result);
+      const base64 = dataUrl.split(",")[1];
       const catObj = PHOTO_CATEGORIES.find(c => c.id === cat) || PHOTO_CATEGORIES[0];
       const path = catObj.path.replace("{P}", pname);
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
@@ -586,19 +606,21 @@ function PhotoUpload({ data, setData, showToast, pid }) {
       const filename = `${pname}_${stamp}.${ext}`;
       // no-cors: Apps Script ne šalje CORS header pa odgovor ne možemo pročitati,
       // ali zahtjev SVAKAKO prolazi i fajl se kreira na Drive-u. Zato uspjeh
-      // bilježimo optimistično (bez URL-a slike).
-      fetch(driveUrl, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ path, filename, mimeType: file.type || "image/jpeg", data: base64 })
-      })
-        .then(() => {
-          setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, filename, date: TODAY }, ...(d.uploads || [])].slice(0, 50) }));
-          showToast("✅ Slika poslana na Drive!");
+      // bilježimo optimistično. Malu sličicu (thumb) čuvamo lokalno za preview.
+      makeThumb(dataUrl, 400).then(thumb => {
+        fetch(driveUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ path, filename, mimeType: file.type || "image/jpeg", data: base64 })
         })
-        .catch(() => showToast("❌ Nema veze s internetom"))
-        .then(() => setBusy(false));
+          .then(() => {
+            setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, filename, date: TODAY, thumb }, ...(d.uploads || [])].slice(0, 40) }));
+            showToast("✅ Slika poslana na Drive!");
+          })
+          .catch(() => showToast("❌ Nema veze s internetom"))
+          .then(() => setBusy(false));
+      });
     };
     reader.readAsDataURL(file);
   }
@@ -672,16 +694,26 @@ function PhotoUpload({ data, setData, showToast, pid }) {
       <div style={card}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", marginBottom: 8 }}>Zadnje poslano</div>
         {uploads.length === 0 && <div style={{ fontSize: 13, color: "#64748b" }}>Još nema poslanih slika.</div>}
-        {uploads.slice(0, 15).map(u => (
-          <div key={u.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${bdr}` }}>
-            <div style={{ minWidth: 0 }}>
+        {uploads.slice(0, 20).map(u => (
+          <div key={u.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: `1px solid ${bdr}` }}>
+            {u.thumb
+              ? <img src={u.thumb} onClick={() => setPreview(u.thumb)} style={{ width: 46, height: 46, borderRadius: 8, objectFit: "cover", cursor: "pointer", flexShrink: 0 }} />
+              : <div style={{ width: 46, height: 46, borderRadius: 8, background: "#334155", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 18 }}>🖼️</div>}
+            <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.label || u.path}</div>
               <div style={{ fontSize: 11, color: "#64748b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.path} · {u.date}</div>
             </div>
-            <button onClick={() => deleteUpload(u)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: 16, flexShrink: 0, marginLeft: 10 }}>🗑️</button>
+            <button onClick={() => deleteUpload(u)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: 16, flexShrink: 0 }}>🗑️</button>
           </div>
         ))}
       </div>
+
+      {preview && (
+        <div onClick={() => setPreview(null)} style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 16 }}>
+          <img src={preview} style={{ maxWidth: "100%", maxHeight: "100%", borderRadius: 12 }} />
+          <div style={{ position: "fixed", bottom: 24, left: 0, right: 0, textAlign: "center", color: "#94a3b8", fontSize: 13 }}>Tapni za zatvaranje</div>
+        </div>
+      )}
     </div>
   );
 }
