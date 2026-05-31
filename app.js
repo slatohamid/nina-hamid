@@ -19,7 +19,7 @@ function load() {
 }
 function save(d) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch {} }
 
-const TABS = ["Dashboard", "Raspored", "Trening", "Snaga", "Rehab", "Ahilova", "Prehrana", "Suplementi", "Tjelo", "Uređaji", "🛒 Lista"];
+const TABS = ["Dashboard", "Raspored", "Trening", "Snaga", "Rehab", "Ahilova", "Prehrana", "Suplementi", "Tjelo", "Uređaji", "🛒 Lista", "❓ Upute"];
 
 const scheduleData = {
   slato: { wake: "05:30", days: [
@@ -570,8 +570,141 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
   );
 }
 
+// ─── UPUTE / GUIDE TAB ───────────────────────────────────────
+function GuideTab() {
+  const bgC = "#1e293b", bdr = "#334155";
+  const card = { background: bgC, borderRadius: 12, padding: 16, marginBottom: 12 };
+  const h = { fontSize: 15, fontWeight: 700, marginBottom: 10, display: "flex", gap: 8, alignItems: "center" };
+  const p = { fontSize: 13, color: "#cbd5e1", lineHeight: 1.6 };
+  const stepWrap = { display: "flex", gap: 10, marginBottom: 10, alignItems: "flex-start" };
+  const num = c => ({ flexShrink: 0, width: 24, height: 24, borderRadius: "50%", background: c, color: "#fff", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center" });
+
+  const tabGuide = [
+    { ic: "🏠", n: "Dashboard", d: "Početni pregled: odbrojavanje do ciljeva (Paris i Brussels), ukupno pređenih kilometara i koliko si treninga završio/la ove sedmice." },
+    { ic: "📅", n: "Raspored", d: "Sedmični plan treninga po danima. Klikni na dan da ga označiš kao završen (✅) ili da poništiš. Gore biraš vrijeme buđenja." },
+    { ic: "🏃", n: "Trening", d: "Ovdje BILJEŽIŠ svaki kardio trening — vrstu, kilometre, tempo, puls (HR) i bilješku. Ispod vidiš historiju svih treninga." },
+    { ic: "💪", n: "Snaga", d: "Vježbe snage podijeljene po danima. Svaka vježba ima broj serija, savjet, ▶️ video demonstraciju i 🤖 AI varijante (lakša/teža verzija)." },
+    { ic: "🩹", n: "Rehab", d: "Samo za Slatu. Checklist za oporavak Ahilove tetive — lijekovi, vježbe, led, istezanje." },
+    { ic: "🦵", n: "Ahilova", d: "Samo za Slatu. Plan oporavka Ahilove kroz 3 faze (akutna → Alfredson → jačanje) s vježbama i nivoom dozvoljenog bola." },
+    { ic: "🥗", n: "Prehrana", d: "5 opcija jelovnika po osobi s makronutrijentima (kalorije, proteini, ugljikohidrati, masti). Gore biraš opciju." },
+    { ic: "💊", n: "Suplementi", d: "Lista suplemenata s dozom, vremenom uzimanja i razlogom. 🔴 = najvažnije, 🟢 = opcionalno." },
+    { ic: "⚖️", n: "Tjelo", d: "Upisuješ težinu (kg). Aplikacija pamti historiju i pokazuje razliku (zeleno = smršao/la, crveno = dobio/la)." },
+    { ic: "⌚", n: "Uređaji", d: "Povezivanje sata: uvoz GPX fajla sa Garmina, uputstvo za Fitbit i tvoje HR (puls) zone." },
+    { ic: "🛒", n: "🛒 Lista", d: "Lista za kupovinu — generiši automatski iz jelovnika ili dodaj ručno, pa kvačicom označavaj šta si kupio/la." },
+  ];
+
+  return (
+    <div>
+      <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 14 }}>❓ Kako koristiti aplikaciju</div>
+
+      <div style={{ ...card, borderLeft: "3px solid #7c3aed" }}>
+        <div style={p}>
+          Dobrodošli! 👋 Ovo je vaš lični trening centar — plan, bilježenje treninga,
+          prehrana, suplementi i oporavak, sve na jednom mjestu. Ispod je kratko uputstvo
+          za sve. Ne brini — ništa ne možeš pokvariti. 🙂
+        </div>
+      </div>
+
+      <div style={{ ...card, borderLeft: "3px solid #22c55e" }}>
+        <div style={h}>🚀 Brzi start</div>
+        <div style={stepWrap}><div style={num("#22c55e")}>1</div><div style={p}><b>Odaberi osobu</b> gore (👨 Slato ili 👩 Nina). Svako ima svoje podatke i svoj plan.</div></div>
+        <div style={stepWrap}><div style={num("#22c55e")}>2</div><div style={p}><b>Kreći se kroz tabove</b> (Dashboard, Raspored, Trening…) tako što ih prevučeš prstom lijevo-desno.</div></div>
+        <div style={stepWrap}><div style={num("#22c55e")}>3</div><div style={p}><b>Sve se sprema samo</b> — čim nešto upišeš, automatski je sačuvano na ovom telefonu.</div></div>
+      </div>
+
+      <div style={{ ...card, borderLeft: "3px solid #3b82f6" }}>
+        <div style={h}>👫 Profili — Slato i Nina</div>
+        <div style={p}>
+          Gore su dva dugmeta. Klikni 👩 <b>Nina</b> ili 👨 <b>Slato</b> da prebaciš ko se
+          trenutno koristi. Svaka osoba ima <b>odvojene</b> treninge, težinu i plan.
+          Tabovi <b>Rehab</b> i <b>Ahilova</b> se prikazuju samo za Slatu (njegov oporavak tetive).
+        </div>
+      </div>
+
+      <div style={card}>
+        <div style={h}>📑 Šta koji tab radi</div>
+        {tabGuide.map((t, i) => (
+          <div key={i} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: i < tabGuide.length - 1 ? `1px solid ${bdr}` : "none" }}>
+            <div style={{ fontSize: 18, flexShrink: 0, width: 24, textAlign: "center" }}>{t.ic}</div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>{t.n}</div>
+              <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>{t.d}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ ...card, borderLeft: "3px solid #ec4899" }}>
+        <div style={h}>➕ Kako zabilježiti trening</div>
+        <div style={stepWrap}><div style={num("#ec4899")}>1</div><div style={p}>Otvori tab <b>Trening</b>.</div></div>
+        <div style={stepWrap}><div style={num("#ec4899")}>2</div><div style={p}>Odaberi vrstu (trčanje, bicikl, plivanje…).</div></div>
+        <div style={stepWrap}><div style={num("#ec4899")}>3</div><div style={p}>Upiši <b>kilometre</b> i/ili <b>trajanje</b>, po želji tempo, puls i bilješku.</div></div>
+        <div style={stepWrap}><div style={num("#ec4899")}>4</div><div style={p}>Klikni <b>✅ Zabilježi</b>. Trening se pojavi u historiji ispod (možeš ga i obrisati).</div></div>
+      </div>
+
+      <div style={{ ...card, borderLeft: "3px solid #f59e0b" }}>
+        <div style={h}>⚖️ Težina i ✅ završeni treninzi</div>
+        <div style={p}>
+          <b>Težina:</b> tab <b>Tjelo</b> → upiši kg → <b>Spremi</b>.<br /><br />
+          <b>Označi trening kao odrađen:</b> tab <b>Raspored</b> → klikni na dan → <b>Završeno ✅</b>.
+          Time raste tvoj sedmični postotak na Dashboardu.
+        </div>
+      </div>
+
+      <div style={{ ...card, borderLeft: "3px solid #3b82f6" }}>
+        <div style={h}>⌚ Kako povezati sat (uvoz treninga)</div>
+        <div style={p} >
+          <b>👨 Slato (Garmin):</b>
+        </div>
+        <div style={{ ...stepWrap, marginTop: 8 }}><div style={num("#3b82f6")}>1</div><div style={p}>U <b>Garmin Connect</b> aplikaciji otvori aktivnost → ⋮ (tri tačke) → <b>Export GPX</b>.</div></div>
+        <div style={stepWrap}><div style={num("#3b82f6")}>2</div><div style={p}>U ovoj aplikaciji idi na tab <b>Uređaji</b> → <b>📂 Uvezi GPX fajl</b> → odaberi taj fajl.</div></div>
+        <div style={stepWrap}><div style={num("#3b82f6")}>3</div><div style={p}>Kilometri i puls se sami popune u tabu Trening — samo klikni Zabilježi.</div></div>
+        <div style={{ ...p, marginTop: 6 }}>
+          <b>👩 Nina (Fitbit):</b> Fitbit nema GPX, pa pogledaj km i puls u Fitbit aplikaciji i
+          upiši ih ručno u tab <b>Trening</b>.
+        </div>
+      </div>
+
+      <div style={{ ...card, borderLeft: "3px solid #7c3aed" }}>
+        <div style={h}>🤖 AI varijante & ▶️ Video</div>
+        <div style={p}>
+          U tabu <b>Snaga</b> svaka vježba ima <b>🤖 AI varijante</b> (dobiješ lakšu/srednju/težu
+          verziju) i link koji otvara <b>video demonstraciju</b> na YouTubeu da vidiš pravilnu izvedbu.
+        </div>
+      </div>
+
+      <div style={{ ...card, borderLeft: "3px solid #ef4444" }}>
+        <div style={h}>💾 Gdje se čuvaju podaci (VAŽNO)</div>
+        <div style={p}>
+          Podaci se čuvaju <b>na ovom telefonu/pregledniku</b>, lokalno. To znači:
+          <br />• Slatov telefon i Ninin telefon imaju <b>odvojene</b> podatke — ne sinkroniziraju se sami.
+          <br />• Ako obrišeš historiju preglednika, podaci nestaju.
+          <br />• Najbolje je da svako koristi <b>svoj uvijek isti telefon</b> za svoj profil.
+        </div>
+      </div>
+
+      <div style={{ ...card, borderLeft: "3px solid #22c55e" }}>
+        <div style={h}>📲 Instaliraj kao aplikaciju</div>
+        <div style={p}>
+          Da bude kao prava aplikacija na ekranu (bez adresne trake):
+          <br /><br /><b>iPhone (Safari):</b> dugme <b>Podijeli</b> (kvadrat sa strelicom) → <b>Add to Home Screen</b>.
+          <br /><b>Android (Chrome):</b> meni ⋮ → <b>Install app</b> / <b>Dodaj na početni ekran</b>.
+        </div>
+      </div>
+
+      <div style={{ ...card, borderLeft: "3px solid #64748b", marginBottom: 4 }}>
+        <div style={h}>📷 Fotografije napretka</div>
+        <div style={p}>
+          Trenutno aplikacija nema dodavanje fotografija (npr. „prije/poslije"). Ako želiš,
+          može se dodati — javi i ubacit ćemo opciju za slike napretka u tab Tjelo.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN APP ────────────────────────────────────────────────
-export default function App() {
+function App() {
   const [tab, setTab] = useState("Dashboard");
   const [pid, setPid] = useState("slato");
   const [data, setData] = useState(load);
@@ -1054,7 +1187,16 @@ export default function App() {
           />
         )}
 
+        {tab==="❓ Upute" && <GuideTab />}
+
       </div>
     </div>
   );
 }
+
+// ─── RENDER ──────────────────────────────────────────────────
+// Renderira se ovdje (na kraju app.js) jer Babel asinhrono dohvaća
+// ovu skriptu — tek tu je App sigurno definiran i #root postoji.
+ReactDOM.createRoot(document.getElementById("root")).render(
+  React.createElement(App)
+);

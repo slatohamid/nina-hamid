@@ -27,13 +27,9 @@
 </head>
 <body>
   <div id="root"></div>
+  <!-- App se renderira na kraju app.js (nakon Babel transformacije) -->
   <script type="text/babel" src="./app.js"></script>
   <script>
-    // Render app
-    window.addEventListener('DOMContentLoaded', () => {
-      const root = ReactDOM.createRoot(document.getElementById('root'));
-      root.render(React.createElement(App));
-    });
     // Register service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
