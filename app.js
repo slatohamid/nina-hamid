@@ -13,13 +13,21 @@ const STORAGE_KEY = "mak_v5";
 function load() {
   try {
     const r = localStorage.getItem(STORAGE_KEY);
-    const base = { slato: { logs: [], weights: [], doneHistory: [] }, nina: { logs: [], weights: [], doneHistory: [] }, shoppingList: [], shoppingChecked: [] };
+    const base = { slato: { logs: [], weights: [], doneHistory: [] }, nina: { logs: [], weights: [], doneHistory: [] }, shoppingList: [], shoppingChecked: [], driveUrl: "", uploads: [] };
     return r ? { ...base, ...JSON.parse(r) } : base;
-  } catch { return { slato: { logs: [], weights: [], doneHistory: [] }, nina: { logs: [], weights: [], doneHistory: [] }, shoppingList: [], shoppingChecked: [] }; }
+  } catch { return { slato: { logs: [], weights: [], doneHistory: [] }, nina: { logs: [], weights: [], doneHistory: [] }, shoppingList: [], shoppingChecked: [], driveUrl: "", uploads: [] }; }
 }
 function save(d) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch {} }
 
-const TABS = ["Dashboard", "Raspored", "Trening", "Snaga", "Rehab", "Ahilova", "Prehrana", "Suplementi", "Tjelo", "Uređaji", "🛒 Lista", "❓ Upute"];
+const TABS = ["Dashboard", "Raspored", "Trening", "Snaga", "Rehab", "Ahilova", "Prehrana", "Suplementi", "Tjelo", "Uređaji", "🛒 Lista", "📷 Slike", "❓ Upute"];
+
+const PHOTO_CATEGORIES = [
+  { id: "nalazi",     label: "🩺 Nalazi / krvna slika", folder: "Nalazi i krvna slika" },
+  { id: "hrana",      label: "🍽️ Hrana / obroci",       folder: "Hrana" },
+  { id: "racuni",     label: "🧾 Računi",                folder: "Računi" },
+  { id: "suplementi", label: "💊 Suplementi",            folder: "Suplementi" },
+  { id: "etikete",    label: "🏷️ Sadržaji / etikete",   folder: "Sadržaji i etikete" }
+];
 
 const scheduleData = {
   slato: { wake: "05:30", days: [
@@ -570,6 +578,128 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
   );
 }
 
+// ─── SLIKE → GOOGLE DRIVE ────────────────────────────────────
+function PhotoUpload({ data, setData, showToast }) {
+  const bg = "#0f172a", bgC = "#1e293b", bdr = "#334155";
+  const driveUrl = data.driveUrl || "";
+  const uploads = data.uploads || [];
+  const [urlInput, setUrlInput] = useState(driveUrl);
+  const [cat, setCat] = useState(PHOTO_CATEGORIES[0].id);
+  const [busy, setBusy] = useState(false);
+  const [showCfg, setShowCfg] = useState(!driveUrl);
+  const camRef = useRef();
+  const galRef = useRef();
+
+  const card = { background: bgC, borderRadius: 12, padding: 16, marginBottom: 12 };
+  const inp = { width: "100%", padding: "11px 14px", background: bg, border: `1px solid ${bdr}`, borderRadius: 8, color: "#f1f5f9", fontSize: 14, boxSizing: "border-box", marginTop: 6 };
+
+  function saveUrl() {
+    const u = urlInput.trim();
+    setData(d => ({ ...d, driveUrl: u }));
+    setShowCfg(false);
+    showToast(u ? "✅ Drive link sačuvan" : "Link obrisan");
+  }
+
+  function pick(ref) {
+    if (!driveUrl) { setShowCfg(true); showToast("⚠️ Prvo zalijepi Drive link"); return; }
+    ref.current.click();
+  }
+
+  function handleFile(e) {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    setBusy(true);
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const base64 = String(ev.target.result).split(",")[1];
+      const catObj = PHOTO_CATEGORIES.find(c => c.id === cat) || PHOTO_CATEGORIES[0];
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+      const ext = ((file.type.split("/")[1]) || "jpg").replace("jpeg", "jpg");
+      const filename = `${catObj.folder}_${stamp}.${ext}`;
+      fetch(driveUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ folder: catObj.folder, filename, mimeType: file.type || "image/jpeg", data: base64 })
+      })
+        .then(r => r.json())
+        .then(j => {
+          if (j && j.ok) {
+            setData(d => ({ ...d, uploads: [{ id: Date.now(), folder: catObj.folder, filename, url: j.url || "", date: TODAY }, ...(d.uploads || [])].slice(0, 50) }));
+            showToast("✅ Slika je na Drive-u!");
+          } else { showToast("❌ Greška: " + ((j && j.error) || "pokušaj ponovo")); }
+        })
+        .catch(() => showToast("❌ Nema veze ili pogrešan link"))
+        .then(() => setBusy(false));
+    };
+    reader.readAsDataURL(file);
+  }
+
+  const selected = PHOTO_CATEGORIES.find(c => c.id === cat) || PHOTO_CATEGORIES[0];
+
+  return (
+    <div>
+      <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 14 }}>📷 Slike → Google Drive</div>
+
+      <div style={{ ...card, borderLeft: `3px solid ${driveUrl ? "#22c55e" : "#f59e0b"}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: driveUrl ? "#22c55e" : "#f59e0b" }}>
+            {driveUrl ? "✅ Povezano s Drive-om" : "⚠️ Nije povezano"}
+          </div>
+          <button onClick={() => setShowCfg(s => !s)} style={{ background: "none", border: `1px solid ${bdr}`, color: "#94a3b8", borderRadius: 8, padding: "5px 10px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+            {showCfg ? "Sakrij" : "Postavke"}
+          </button>
+        </div>
+        {showCfg && (
+          <div style={{ marginTop: 10 }}>
+            <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>
+              Zalijepi <b>Web app URL</b> (završava na /exec) iz Google Apps Script-a.
+              Uputstvo je u fajlu <b>SETUP-SLIKE.md</b>.
+            </div>
+            <input value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="https://script.google.com/macros/s/.../exec" style={inp} />
+            <button onClick={saveUrl} style={{ width: "100%", padding: 11, background: "#22c55e", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", marginTop: 8 }}>💾 Sačuvaj link</button>
+          </div>
+        )}
+      </div>
+
+      <div style={card}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", marginBottom: 8 }}>1. Odaberi gdje ide slika</div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {PHOTO_CATEGORIES.map(c => (
+            <button key={c.id} onClick={() => setCat(c.id)} style={{ padding: "8px 12px", borderRadius: 16, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 12, background: cat === c.id ? "#3b82f6" : "#334155", color: "#fff" }}>{c.label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={card}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", marginBottom: 8 }}>2. Slikaj ili odaberi sliku</div>
+        <input type="file" accept="image/*" capture="environment" ref={camRef} onChange={handleFile} style={{ display: "none" }} />
+        <input type="file" accept="image/*" ref={galRef} onChange={handleFile} style={{ display: "none" }} />
+        <button disabled={busy} onClick={() => pick(camRef)} style={{ width: "100%", padding: 13, background: busy ? "#475569" : "#3b82f6", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 15, cursor: busy ? "default" : "pointer", marginBottom: 8 }}>
+          {busy ? "⏳ Šaljem..." : `📷 Slikaj i pošalji → ${selected.label}`}
+        </button>
+        <button disabled={busy} onClick={() => pick(galRef)} style={{ width: "100%", padding: 13, background: busy ? "#475569" : "#334155", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 15, cursor: busy ? "default" : "pointer" }}>
+          🖼️ Odaberi iz galerije
+        </button>
+      </div>
+
+      <div style={card}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#94a3b8", marginBottom: 8 }}>Zadnje poslano</div>
+        {uploads.length === 0 && <div style={{ fontSize: 13, color: "#64748b" }}>Još nema poslanih slika.</div>}
+        {uploads.slice(0, 15).map(u => (
+          <div key={u.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${bdr}` }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.folder}</div>
+              <div style={{ fontSize: 11, color: "#64748b" }}>{u.date}</div>
+            </div>
+            {u.url ? <a href={u.url} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: "#3b82f6", fontWeight: 700, flexShrink: 0, marginLeft: 10 }}>Otvori ↗</a> : null}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── UPUTE / GUIDE TAB ───────────────────────────────────────
 function GuideTab() {
   const bgC = "#1e293b", bdr = "#334155";
@@ -591,6 +721,7 @@ function GuideTab() {
     { ic: "⚖️", n: "Tjelo", d: "Upisuješ težinu (kg). Aplikacija pamti historiju i pokazuje razliku (zeleno = smršao/la, crveno = dobio/la)." },
     { ic: "⌚", n: "Uređaji", d: "Povezivanje sata: uvoz GPX fajla sa Garmina, uputstvo za Fitbit i tvoje HR (puls) zone." },
     { ic: "🛒", n: "🛒 Lista", d: "Lista za kupovinu — generiši automatski iz jelovnika ili dodaj ručno, pa kvačicom označavaj šta si kupio/la." },
+    { ic: "📷", n: "📷 Slike", d: "Slikaj hranu, račune, suplemente, etikete ili nalaze i pošalji ih direktno u odgovarajući folder na Google Drive-u." },
   ];
 
   return (
@@ -692,11 +823,20 @@ function GuideTab() {
         </div>
       </div>
 
-      <div style={{ ...card, borderLeft: "3px solid #64748b", marginBottom: 4 }}>
-        <div style={h}>📷 Fotografije napretka</div>
+      <div style={{ ...card, borderLeft: "3px solid #3b82f6", marginBottom: 4 }}>
+        <div style={h}>📷 Slanje slika na Google Drive</div>
         <div style={p}>
-          Trenutno aplikacija nema dodavanje fotografija (npr. „prije/poslije"). Ako želiš,
-          može se dodati — javi i ubacit ćemo opciju za slike napretka u tab Tjelo.
+          U tabu <b>📷 Slike</b> možeš slikati hranu, račune, suplemente, etikete ili
+          nalaze i poslati ih direktno u odgovarajući folder na Google Drive-u.
+          <br /><br />
+          <b>1.</b> Odaberi kategoriju (gdje ide slika).<br />
+          <b>2.</b> Klikni „📷 Slikaj i pošalji" (kamera) ili „🖼️ Odaberi iz galerije".<br />
+          <b>3.</b> Slika automatski ode u svoj folder na Drive-u. ✅
+          <br /><br />
+          <span style={{ color: "#94a3b8", fontSize: 12 }}>
+            Napomena: prvo se jednom podesi Drive link (Postavke u tabu Slike) —
+            uputstvo je u fajlu SETUP-SLIKE.md.
+          </span>
         </div>
       </div>
     </div>
@@ -1186,6 +1326,8 @@ function App() {
             showToast={showToast}
           />
         )}
+
+        {tab==="📷 Slike" && <PhotoUpload data={data} setData={setData} showToast={showToast} />}
 
         {tab==="❓ Upute" && <GuideTab />}
 
