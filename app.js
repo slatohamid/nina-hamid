@@ -1,6 +1,7 @@
 const { useState, useEffect, useRef } = React;
 
 const TODAY = "2026-05-31";
+const APP_VERSION = "v6";
 const GOAL1 = { label: "🇫🇷 Paris 20km", date: "2026-10-11", days: Math.floor((new Date("2026-10-11") - new Date(TODAY)) / 86400000) };
 const GOAL2 = { label: "🇧🇪 Brussels 20km", date: "2027-05-30", days: Math.floor((new Date("2027-05-30") - new Date(TODAY)) / 86400000) };
 
@@ -1039,7 +1040,7 @@ function App() {
       <div style={{ background:bgC, padding:"14px 16px", borderBottom:`1px solid ${bdr}` }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
           <div style={{ fontSize:17, fontWeight:700 }}>❤️ Nina & Hamid</div>
-          <div style={{ fontSize:12, color:"#64748b" }}>📅 {TODAY}</div>
+          <div style={{ fontSize:12, color:"#64748b" }}>📅 {TODAY} · {APP_VERSION}</div>
         </div>
         <div style={{ display:"flex", gap:8 }}>
           {Object.entries(PROFILES).map(([k,p]) => (

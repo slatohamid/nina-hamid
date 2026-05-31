@@ -18,7 +18,7 @@
 
 // ID foldera "Nina & Hamid — Training Hub" (već popunjeno za vaš Drive).
 // Ako ikad promijeniš lokaciju, zamijeni ovaj ID.
-var ROOT_FOLDER_ID = "13krrnlKJAote1PSn7vLNTkB8VUDl4ONz";
+var ROOT_FOLDER_ID =  "13krrnlKJAote1PSn7vLNTkB8VUDl4ONz";
 
 // Test u browseru — ako otvoriš /exec link treba pisati da radi.
 function doGet() {
