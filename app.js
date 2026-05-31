@@ -604,21 +604,24 @@ function PhotoUpload({ data, setData, showToast, pid }) {
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
       const ext = ((file.type.split("/")[1]) || "jpg").replace("jpeg", "jpg");
       const filename = `${pname}_${stamp}.${ext}`;
-      // no-cors: Apps Script ne šalje CORS header pa odgovor ne možemo pročitati,
-      // ali zahtjev SVAKAKO prolazi i fajl se kreira na Drive-u. Zato uspjeh
-      // bilježimo optimistično. Malu sličicu (thumb) čuvamo lokalno za preview.
-      makeThumb(dataUrl, 400).then(thumb => {
+      // cors: ako Apps Script vrati CORS header, pročitamo LINK slike (url) na Drive-u.
+      // Ako ne (catch), slika je SVEJEDNO poslana — zabilježimo bez linka.
+      // Sličicu (thumb) čuvamo lokalno za jasan preview u aplikaciji.
+      makeThumb(dataUrl, 700).then(thumb => {
         fetch(driveUrl, {
           method: "POST",
-          mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({ path, filename, mimeType: file.type || "image/jpeg", data: base64 })
         })
-          .then(() => {
-            setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, filename, date: TODAY, thumb }, ...(d.uploads || [])].slice(0, 40) }));
+          .then(r => r.json())
+          .then(j => {
+            setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, filename, date: TODAY, thumb, url: (j && j.url) || "" }, ...(d.uploads || [])].slice(0, 25) }));
             showToast("✅ Slika poslana na Drive!");
           })
-          .catch(() => showToast("❌ Nema veze s internetom"))
+          .catch(() => {
+            setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, filename, date: TODAY, thumb }, ...(d.uploads || [])].slice(0, 25) }));
+            showToast("✅ Slika poslana (link nedostupan)");
+          })
           .then(() => setBusy(false));
       });
     };
@@ -702,6 +705,7 @@ function PhotoUpload({ data, setData, showToast, pid }) {
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.label || u.path}</div>
               <div style={{ fontSize: 11, color: "#64748b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.path} · {u.date}</div>
+              {u.url && <a href={u.url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: "#3b82f6", fontWeight: 700 }}>Otvori na Drive ↗</a>}
             </div>
             <button onClick={() => deleteUpload(u)} style={{ background: "none", border: "none", cursor: "pointer", color: "#ef4444", fontSize: 16, flexShrink: 0 }}>🗑️</button>
           </div>
