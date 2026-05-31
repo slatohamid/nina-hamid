@@ -24,17 +24,27 @@ Gotovo! 🎉
 
 ## Kako se koristi
 
-1. Tab **📷 Slike**
-2. Odaberi kategoriju (Hrana / Računi / Suplementi / Etikete / Nalazi)
-3. **📷 Slikaj i pošalji** (otvara kameru) ili **🖼️ Odaberi iz galerije**
-4. Slika automatski ode u folder **`Nina & Hamid — Slike`** na Drive-u,
-   u podfolder po kategoriji.
+1. Gore odaberi osobu (👨 Slato ili 👩 Nina) — bitno za nalaze i foto napretka.
+2. Tab **📷 Slike**
+3. Odaberi kategoriju; app pokaže tačan folder gdje slika ide.
+4. **📷 Slikaj i pošalji** (kamera) ili **🖼️ Odaberi iz galerije**
+5. Slika automatski ode u odgovarajući folder na Drive-u.
+
+## Gdje slike završe (postojeća struktura)
+
+| Kategorija u appu | Folder na Drive-u |
+|---|---|
+| 🍽️ Hrana / računi | `04_Slike/Hrana_Racuni` |
+| 💊 Suplementi | `04_Slike/Suplementi` |
+| 📸 Foto napretka | `04_Slike/Slato_Progress` ili `Nina_Progress` |
+| 🩸 Krvna slika | `01_Medicinski_Nalazi/Slato/Krvna_Slika` ili `Nina/...` |
+| 💊 Recepti / ljekovi | `01_Medicinski_Nalazi/Slato/Recepti_Ljekovi` ili `Nina/...` |
+
+Nalazi i foto napretka idu u folder **trenutno odabrane osobe** (Slato/Nina).
 
 ## Napomene
 
 - Link se čuva **na ovom telefonu** (u pregledniku). Ako koristite dva telefona,
   zalijepite isti link na oba.
-- Slike se spremaju na Drive **onog naloga koji je deployao skript** (najbolje
-  glavni nalog na kojem su folderi).
-- Ako želiš promijeniti imena foldera, izmijeni `folder` vrijednosti u
-  `app.js` (lista `PHOTO_CATEGORIES`) i naziv `ROOT_FOLDER` u skripti.
+- Skript sprema u folder `Nina & Hamid — Training Hub` (po ID-u, već popunjeno).
+  Ako želiš dodati/promijeniti kategorije, izmijeni `PHOTO_CATEGORIES` u `app.js`.

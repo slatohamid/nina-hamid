@@ -1,44 +1,56 @@
 /**
  * Nina & Hamid — Drive Upload Web App
  * ------------------------------------------------------------
- * Ovaj skript prima slike iz aplikacije i sprema ih u Google Drive,
- * svaku u svoj folder (Hrana, Računi, Suplementi, Nalazi...).
+ * Prima slike iz aplikacije i sprema ih u POSTOJEĆU strukturu foldera
+ * unutar "Nina & Hamid — Training Hub" na Google Drive-u.
  *
  * KAKO POSTAVITI (jednom, ~5 min):
  *  1. Otvori  https://script.google.com  → New project
  *  2. Obriši sve i zalijepi OVAJ kod (cijeli)
  *  3. Gore desno: Deploy → New deployment
  *       - Select type (zupčanik): Web app
- *       - Description: bilo šta
- *       - Execute as: Me (tvoj nalog)
+ *       - Execute as: Me (nalog koji ima Training Hub folder)
  *       - Who has access: Anyone
  *     → Deploy → Authorize access → odaberi nalog → Allow
  *  4. Kopiraj "Web app URL" (završava na /exec)
- *  5. U aplikaciji: tab 📷 Slike → Postavke → zalijepi taj link → Sačuvaj
- *
- * Slike se spremaju u folder "Nina & Hamid — Slike" na tvom Drive-u.
+ *  5. U aplikaciji: tab 📷 Slike → Postavke → zalijepi link → Sačuvaj
  */
 
-var ROOT_FOLDER = "Nina & Hamid — Slike";
+// ID foldera "Nina & Hamid — Training Hub" (već popunjeno za vaš Drive).
+// Ako ikad promijeniš lokaciju, zamijeni ovaj ID.
+var ROOT_FOLDER_ID = "13krrnlKJAote1PSn7vLNTkB8VUDl4ONz";
 
 // Test u browseru — ako otvoriš /exec link treba pisati da radi.
 function doGet() {
   return json({ ok: true, msg: "Radi! Zalijepi ovaj /exec link u aplikaciju (tab Slike → Postavke)." });
 }
 
-// Prima sliku iz aplikacije i sprema je u Drive.
+// Prima sliku i sprema je u folder po putanji (npr. "04_Slike/Hrana_Racuni").
 function doPost(e) {
   try {
     var body = JSON.parse(e.postData.contents);
-    var root = getOrCreateFolder(DriveApp.getRootFolder(), ROOT_FOLDER);
-    var sub = getOrCreateFolder(root, body.folder || "Ostalo");
+    var folder = getFolderByPath(body.path || "04_Slike");
     var bytes = Utilities.base64Decode(body.data);
     var blob = Utilities.newBlob(bytes, body.mimeType || "image/jpeg", body.filename || "slika.jpg");
-    var file = sub.createFile(blob);
+    var file = folder.createFile(blob);
     return json({ ok: true, url: file.getUrl(), name: file.getName() });
   } catch (err) {
     return json({ ok: false, error: String(err) });
   }
+}
+
+function getRoot() {
+  return DriveApp.getFolderById(ROOT_FOLDER_ID);
+}
+
+// Prati putanju "a/b/c" od root foldera; pravi foldere koji fale.
+function getFolderByPath(path) {
+  var parts = String(path).split("/").filter(function (p) { return p && p.trim(); });
+  var cur = getRoot();
+  for (var i = 0; i < parts.length; i++) {
+    cur = getOrCreateFolder(cur, parts[i]);
+  }
+  return cur;
 }
 
 function getOrCreateFolder(parent, name) {
