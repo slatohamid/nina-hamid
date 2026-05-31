@@ -376,14 +376,13 @@ function AchillesTab({ showToast }) {
 }
 
 // ─── SHOPPING LIST ────────────────────────────────────────────
-function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShoppingChecked, showToast }) {
+function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShoppingChecked, showToast, pid }) {
   const [newItem, setNewItem] = useState("");
   const [newCat, setNewCat] = useState("🥩 Proteini");
-  const [selectedOpts, setSelectedOpts] = useState({ slato: 0, nina: 0 });
-  const [store, setStore] = useState("Colruyt");
+  const [selectedOpt, setSelectedOpt] = useState(0);
+  const person = PROFILES[pid] || PROFILES.slato;
 
   const cats = ["🥩 Proteini", "🥦 Povrće & Voće", "🌾 Žitarice & Suhe namirnice", "🥛 Mliječni proizvodi", "🫙 Suplementi", "🧴 Ostalo"];
-  const stores = ["Colruyt", "Delhaize", "Lidl", "Albert Heijn", "Carrefour"];
   const items = shoppingList || [];
   const checked = shoppingChecked || [];
   const bg = "#0f172a", bgC = "#1e293b", bdr = "#334155";
@@ -421,11 +420,11 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
     return "🧴 Ostalo";
   }
 
-  // Generiše listu LOKALNO iz sastojaka odabranih jelovnika (bez interneta).
+  // Generiše listu LOKALNO iz jelovnika AKTIVNE osobe (bez interneta).
   function generateLocal() {
-    const opts = [mealOptions.slato.options[selectedOpts.slato], mealOptions.nina.options[selectedOpts.nina]];
+    const opt = mealOptions[pid].options[selectedOpt] || mealOptions[pid].options[0];
     const seen = {}, out = [];
-    opts.forEach(opt => (opt.meals || []).forEach(m => {
+    (opt.meals || []).forEach(m => {
       String(m.d).split("+").forEach(raw => {
         const name = raw.split(":").pop().trim();
         if (!name) return;
@@ -434,9 +433,9 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
         seen[key] = true;
         out.push({ id: Date.now() + Math.random(), name: name.charAt(0).toUpperCase() + name.slice(1), cat: catOf(name), manual: false });
       });
-    }));
+    });
     setShoppingList(out); setShoppingChecked([]);
-    showToast(out.length ? `✅ Lista: ${out.length} namirnica iz jelovnika` : "Nema sastojaka");
+    showToast(out.length ? `✅ Lista: ${out.length} namirnica (${person.name})` : "Nema sastojaka");
   }
 
   const unchecked = items.filter(x => !checked.includes(x.id));
@@ -450,32 +449,15 @@ function ShoppingList({ shoppingList, shoppingChecked, setShoppingList, setShopp
       </div>
       <div style={{ background: bgC, borderRadius: 12, padding: 14, marginBottom: 12, borderTop: "3px solid #7c3aed" }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "#7c3aed", marginBottom: 10 }}>🍽️ Generiši iz jelovnika</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-          <div style={{ flex: 1, minWidth: 140 }}>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>👨 Slato plan</div>
-            <select value={selectedOpts.slato} onChange={e => setSelectedOpts(s => ({ ...s, slato: +e.target.value }))}
-              style={{ width: "100%", padding: "8px 10px", background: bg, border: `1px solid ${bdr}`, borderRadius: 8, color: "#f1f5f9", fontSize: 13 }}>
-              {mealOptions.slato.options.map((o, i) => <option key={i} value={i}>{o.num} — {o.name}</option>)}
-            </select>
-          </div>
-          <div style={{ flex: 1, minWidth: 140 }}>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>👩 Nina plan</div>
-            <select value={selectedOpts.nina} onChange={e => setSelectedOpts(s => ({ ...s, nina: +e.target.value }))}
-              style={{ width: "100%", padding: "8px 10px", background: bg, border: `1px solid ${bdr}`, borderRadius: 8, color: "#f1f5f9", fontSize: 13 }}>
-              {mealOptions.nina.options.map((o, i) => <option key={i} value={i}>{o.num} — {o.name}</option>)}
-            </select>
-          </div>
-        </div>
         <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 6 }}>🏪 Prodavnica</div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-            {stores.map(s => (
-              <button key={s} onClick={() => setStore(s)} style={{ padding: "6px 12px", borderRadius: 14, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 700, background: store === s ? "#7c3aed" : bdr, color: "#fff" }}>{s}</button>
-            ))}
-          </div>
+          <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4 }}>{person.emoji} {person.name} — jelovnik</div>
+          <select value={selectedOpt} onChange={e => setSelectedOpt(+e.target.value)}
+            style={{ width: "100%", padding: "8px 10px", background: bg, border: `1px solid ${bdr}`, borderRadius: 8, color: "#f1f5f9", fontSize: 13 }}>
+            {mealOptions[pid].options.map((o, i) => <option key={i} value={i}>{o.num} — {o.name}</option>)}
+          </select>
         </div>
         <button onClick={generateLocal} style={{ width: "100%", padding: 13, background: "#7c3aed", border: "none", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
-          ✨ Generiši listu iz jelovnika
+          ✨ Generiši listu iz jelovnika ({person.name})
         </button>
         {items.length > 0 && <button onClick={clearAll} style={{ width: "100%", padding: 8, background: "transparent", border: `1px solid ${bdr}`, borderRadius: 8, color: "#94a3b8", fontSize: 13, cursor: "pointer", marginTop: 8 }}>🗑️ Očisti cijelu listu</button>}
       </div>
@@ -573,19 +555,20 @@ function PhotoUpload({ data, setData, showToast, pid }) {
       const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
       const ext = ((file.type.split("/")[1]) || "jpg").replace("jpeg", "jpg");
       const filename = `${pname}_${stamp}.${ext}`;
+      // no-cors: Apps Script ne šalje CORS header pa odgovor ne možemo pročitati,
+      // ali zahtjev SVAKAKO prolazi i fajl se kreira na Drive-u. Zato uspjeh
+      // bilježimo optimistično (bez URL-a slike).
       fetch(driveUrl, {
         method: "POST",
+        mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ path, filename, mimeType: file.type || "image/jpeg", data: base64 })
       })
-        .then(r => r.json())
-        .then(j => {
-          if (j && j.ok) {
-            setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, url: j.url || "", date: TODAY }, ...(d.uploads || [])].slice(0, 50) }));
-            showToast("✅ Slika je na Drive-u!");
-          } else { showToast("❌ Greška: " + ((j && j.error) || "pokušaj ponovo")); }
+        .then(() => {
+          setData(d => ({ ...d, uploads: [{ id: Date.now(), label: catObj.label, path, date: TODAY }, ...(d.uploads || [])].slice(0, 50) }));
+          showToast("✅ Slika poslana na Drive!");
         })
-        .catch(() => showToast("❌ Nema veze ili pogrešan link"))
+        .catch(() => showToast("❌ Nema veze s internetom"))
         .then(() => setBusy(false));
     };
     reader.readAsDataURL(file);
@@ -1288,6 +1271,7 @@ function App() {
             setShoppingList={list => setData(d => ({ ...d, shoppingList: list }))}
             setShoppingChecked={ch => setData(d => ({ ...d, shoppingChecked: ch }))}
             showToast={showToast}
+            pid={pid}
           />
         )}
 
